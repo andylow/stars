@@ -1,4 +1,4 @@
-package com.siberhus.stars.stripes.controller;
+package com.siberhus.stars.spring;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
