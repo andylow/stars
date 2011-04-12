@@ -20,6 +20,7 @@ import net.sourceforge.stripes.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.stripesstuff.stripersist.EntityFormatter;
 import org.stripesstuff.stripersist.EntityTypeConverter;
+import org.stripesstuff.stripersist.Stripersist;
 
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsRuntimeException;
@@ -185,6 +186,11 @@ public class StarsConfiguration extends RuntimeConfiguration {
 				.initCoreInterceptors();
 		coreInterceptor = new StarsCoreInterceptor();
 		addInterceptor(map, coreInterceptor);
+		
+		if(ServiceProvider.STARS==serviceProvider){
+			addInterceptor(map, new Stripersist());
+		}
+		
 		return map;
 	}
 	
