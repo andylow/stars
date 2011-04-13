@@ -1,5 +1,6 @@
 package com.siberhus.stars.stripes;
 
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -13,6 +14,7 @@ import net.sourceforge.stripes.config.RuntimeConfiguration;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.mock.MockHttpServletRequest;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.StringUtil;
@@ -23,6 +25,7 @@ import org.stripesstuff.stripersist.EntityTypeConverter;
 import org.stripesstuff.stripersist.Stripersist;
 
 import com.siberhus.stars.ServiceProvider;
+import com.siberhus.stars.StarsBootstrap;
 import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.core.DefaultDependencyManager;
 import com.siberhus.stars.core.DefaultLifecycleMethodManager;
@@ -39,7 +42,10 @@ import com.siberhus.stars.ejb.ResourceLocator;
 
 public class StarsConfiguration extends RuntimeConfiguration {
 	
-	private static final Log logger = Log.getInstance(StarsConfiguration.class);
+	private static final Log log = Log.getInstance(StarsConfiguration.class);
+	
+	/** The Configuration Key for looking up the name of the DependencyManager class. */
+	public static final String BOOTSTRAPS = "Bootstrap.Classes";
 	
 	/** The Configuration Key for looking up the name of the DependencyManager class. */
 	public static final String DEPENDECY_MANAGER = "DependencyManager.Class";
@@ -89,7 +95,7 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	static {
 		Package pkg = StarsConfiguration.class.getPackage();
-		logger.info("\r\n##################################################"
+		log.info("\r\n##################################################"
 				+ "\r\n# Stripersist Version: {}, Build: {}"
 				+ "\r\n# Ngai Version: {}"
 				+ "\r\n##################################################",
@@ -177,6 +183,8 @@ public class StarsConfiguration extends RuntimeConfiguration {
 		
 		scanActionBeans();
 		
+		initBootstraps();
+		
 	}
 	
 	
@@ -254,6 +262,27 @@ public class StarsConfiguration extends RuntimeConfiguration {
 			
 		}
 		
+	}
+	
+	protected void initBootstraps(){
+		
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(getServletContext().getContextPath(), "dummy");
+		
+		for (Class<? extends StarsBootstrap> initClass : getBootstrapPropertyResolver()
+			.getClassPropertyList(BOOTSTRAPS, StarsBootstrap.class)) {
+			try {
+				if (!initClass.isInterface() && ((initClass.getModifiers() & Modifier.ABSTRACT) == 0)) {
+					log.debug("Found StripersistInit class ", initClass, " - instanciating and calling init()");
+					
+					StarsBootstrap bootstrap = initClass.newInstance();
+					dependencyManager.inspectAttributes(initClass);
+					dependencyManager.inject(mockRequest, bootstrap);
+					bootstrap.init();
+				}
+			} catch (Exception e) {
+                 log.error(e, "Error occurred while calling init() on ", initClass, ".");
+			}
+		}
 	}
 	
 	 /** Looks for a class name in config and uses that to create the component. */

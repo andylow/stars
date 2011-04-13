@@ -11,6 +11,7 @@ import net.sourceforge.stripes.controller.ExecutionContext;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.util.Log;
 
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationContextAware;
@@ -20,6 +21,8 @@ import com.siberhus.stars.ServiceProvider;
 
 @Intercepts(LifecycleStage.ActionBeanResolution)
 public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent {
+	
+	private Log log = Log.getInstance(getClass());
 	
 	private StarsConfiguration configuration;
 	
@@ -33,6 +36,11 @@ public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent 
 		ActionBeanContext actionBeanContext = context.getActionBeanContext();
 		Resolution resolution = context.proceed();
 		ActionBean actionBean = context.getActionBean();
+		Class<? extends ActionBean> actionBeanClass = actionBean.getClass();
+		String urlBinding = configuration.getActionResolver().getUrlBinding(actionBean.getClass());
+		log.debug("URL Binding for class: ",actionBeanClass, " is ",urlBinding);
+		actionBeanContext.getRequest().setAttribute("actionBeanClass", actionBeanClass.getName());
+		actionBeanContext.getRequest().setAttribute("actionBeanUrl", urlBinding);
 		
 		switch (context.getLifecycleStage()) {
 		case ActionBeanResolution:
