@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
+import javax.servlet.ServletContext;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
@@ -43,6 +44,8 @@ import com.siberhus.stars.ejb.ResourceLocator;
 public class StarsConfiguration extends RuntimeConfiguration {
 	
 	private static final Log log = Log.getInstance(StarsConfiguration.class);
+	
+	public static final String ROOT_STARS_CONFIG_CONTEXT_ATTRIBUTE = StarsConfiguration.class.getName()+".ROOT";
 	
 	/** The Configuration Key for looking up the name of the DependencyManager class. */
 	public static final String BOOTSTRAPS = "Bootstrap.Classes";
@@ -103,11 +106,17 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	}
 	
 	private StarsCoreInterceptor coreInterceptor;
-
+	
+	public static StarsConfiguration get(ServletContext servletContext){
+		return (StarsConfiguration)servletContext.getAttribute(ROOT_STARS_CONFIG_CONTEXT_ATTRIBUTE);
+	}
+	
 	@Override
 	public void init() {
 		
 		super.init();
+		
+		getServletContext().setAttribute(ROOT_STARS_CONFIG_CONTEXT_ATTRIBUTE, this);
 		
 		String sp = getBootstrapPropertyResolver().getProperty(SERVICE_PROVIDER);
 		if(sp!=null){
