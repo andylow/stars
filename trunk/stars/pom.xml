@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.siberhus</groupId>
 	<artifactId>stars</artifactId>
-	<version>0.1-BETA</version>
+	<version>0.1.BETA</version>
 	<packaging>jar</packaging>
 	<description>Stars and Stripes</description>
 	
@@ -101,6 +101,18 @@
 		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.servlet</artifactId>
+			<version>3.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.servlet.jsp</artifactId>
+			<version>3.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.servlet.jsp.jstl</artifactId>
 			<version>3.1</version>
 			<scope>provided</scope>
 		</dependency>
