@@ -7,7 +7,7 @@
 	<description>Stars core taglib</description>
 	<display-name>Stars Tags Library</display-name>
 	<tlib-version>2.4</tlib-version>
-	<short-name>auth</short-name>
+	<short-name>stars</short-name>
 	<uri>http://www.siberhus.com/opensource/stars/tags</uri>
 	
 	<tag>
@@ -15,12 +15,12 @@
 			This tag is used to inject spring bean into the web attribute
 			(request,session,application).
 		</description>
-		<name>service</name>
+		<name>spring</name>
 		<tag-class>com.siberhus.stars.tags.SpringTagHandler</tag-class>
 		<body-content>empty</body-content>
 		<attribute>
 			<name>id</name>
-			<required>false</required>
+			<required>true</required>
 			<rtexprvalue>false</rtexprvalue>
 		</attribute>
 		<attribute>
