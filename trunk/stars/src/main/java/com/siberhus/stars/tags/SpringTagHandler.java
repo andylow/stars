@@ -5,6 +5,7 @@ import javax.servlet.jsp.JspException;
 
 import net.sourceforge.stripes.util.ReflectUtil;
 
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -12,7 +13,7 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 
 	private String name;
 
-	private Class<?> type;
+	private String type;
 	
 	@Override
 	public int doStartTag() throws JspException {
@@ -24,7 +25,11 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 			if (name != null) {
 				bean = springContext.getBean(name);
 			} else if (type != null) {
-				bean = springContext.getBean(type);
+				try {
+					bean = springContext.getBean(ReflectUtil.findClass(type));
+				} catch (ClassNotFoundException e) {
+					throw new JspException(e);
+				}
 			} else {
 				throw new IllegalArgumentException(
 						"name or type attribute is required!");
@@ -49,12 +54,14 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 		this.name = name;
 	}
 
-	public Class<?> getType() {
+	public String getType() {
 		return type;
 	}
-	
-	public void setType(String type) throws ClassNotFoundException{
-		this.type = ReflectUtil.findClass(type);
+
+	public void setType(String type) {
+		this.type = type;
 	}
+	
+	
 	
 }
