@@ -71,7 +71,10 @@ public class ScopedBeanTagSupport implements Tag{
 	}
 	
 	@Override
-	public void release() {}
+	public void release() {
+		this.id = null;
+		this.scope = PageContext.PAGE_SCOPE;
+	}
 	
 	protected Object getBean(){
 		return getPageContext().getAttribute(id, scope);

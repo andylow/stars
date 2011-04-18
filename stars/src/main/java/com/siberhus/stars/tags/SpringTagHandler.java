@@ -3,10 +3,10 @@ package com.siberhus.stars.tags;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 
+import net.sourceforge.stripes.util.ReflectUtil;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.siberhus.stars.stripes.StarsConfiguration;
 
 public class SpringTagHandler extends ScopedBeanTagSupport {
 
@@ -17,7 +17,6 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 	@Override
 	public int doStartTag() throws JspException {
 		ServletContext servletContext = getPageContext().getServletContext();
-		StarsConfiguration starsConfig = StarsConfiguration.get(servletContext);
 		Object bean = getBean();
 		if(bean==null){
 			ApplicationContext springContext = WebApplicationContextUtils
@@ -35,23 +34,27 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 		return super.doStartTag();
 	}
 
+	@Override
+	public void release() {
+		super.release();
+		this.name = null;
+		this.type = null;
+	}
+
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
-		if (getId() == null) {
-			setId(name);
-		}
 		this.name = name;
 	}
 
 	public Class<?> getType() {
 		return type;
 	}
-
-	public void setType(Class<?> type) {
-		this.type = type;
+	
+	public void setType(String type) throws ClassNotFoundException{
+		this.type = ReflectUtil.findClass(type);
 	}
-
+	
 }
