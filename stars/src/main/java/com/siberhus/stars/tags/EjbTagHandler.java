@@ -1,6 +1,5 @@
 package com.siberhus.stars.tags;
 
-import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 
@@ -10,7 +9,7 @@ import com.siberhus.stars.stripes.StarsConfiguration;
 
 public class EjbTagHandler extends ScopedBeanTagSupport{
 	
-	private Class<?> beanInterface;
+	private String beanInterface;
 	
 	private String beanName;
 	
@@ -28,9 +27,10 @@ public class EjbTagHandler extends ScopedBeanTagSupport{
 		if(bean==null){
 			String contextPath = servletContext.getContextPath();
 			try {
-				starsConfig.getEjbLocator().lookup(contextPath, beanInterface, 
+				Class<?> beanInterfaceClass = ReflectUtil.findClass(beanInterface) ;
+				starsConfig.getEjbLocator().lookup(contextPath, beanInterfaceClass, 
 						beanName, lookup, name, mappedName);
-			} catch (NamingException e) {
+			} catch (Exception e) {
 				throw new JspException(e);
 			}
 			setBean(bean);
@@ -48,19 +48,15 @@ public class EjbTagHandler extends ScopedBeanTagSupport{
 		this.mappedName = null;
 	}
 	
-	public Class<?> getBeanInterface() {
+	
+	public String getBeanInterface() {
 		return beanInterface;
 	}
 
-
-	public void setBeanInterface(Class<?> beanInterface) {
+	public void setBeanInterface(String beanInterface) {
 		this.beanInterface = beanInterface;
 	}
 
-	public void setBeanInterface(String beanInterface) throws ClassNotFoundException{
-		this.beanInterface = ReflectUtil.findClass(beanInterface);
-	}
-	
 	public String getBeanName() {
 		return beanName;
 	}
