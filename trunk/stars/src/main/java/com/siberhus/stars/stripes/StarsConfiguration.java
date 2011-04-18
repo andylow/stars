@@ -98,11 +98,9 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	static {
 		Package pkg = StarsConfiguration.class.getPackage();
-		log.info("\r\n##################################################"
-				+ "\r\n# Stripersist Version: {}, Build: {}"
-				+ "\r\n# Ngai Version: {}"
-				+ "\r\n##################################################",
-				new Object[] { 1.0, 105, pkg.getImplementationVersion() });
+		log.info("\r\n##################################################",
+                "\r\n# Stars Version: ", pkg.getSpecificationVersion(), ", Build: ", pkg.getImplementationVersion(),
+                "\r\n##################################################");
 	}
 	
 	private StarsCoreInterceptor coreInterceptor;

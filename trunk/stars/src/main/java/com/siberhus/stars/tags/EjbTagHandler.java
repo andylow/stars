@@ -4,6 +4,8 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 
+import net.sourceforge.stripes.util.ReflectUtil;
+
 import com.siberhus.stars.stripes.StarsConfiguration;
 
 public class EjbTagHandler extends ScopedBeanTagSupport{
@@ -36,6 +38,15 @@ public class EjbTagHandler extends ScopedBeanTagSupport{
 		return super.doStartTag();
 	}
 	
+	@Override
+	public void release(){
+		super.release();
+		this.beanInterface = null;
+		this.beanName = null;
+		this.lookup = null;
+		this.name = null;
+		this.mappedName = null;
+	}
 	
 	public Class<?> getBeanInterface() {
 		return beanInterface;
@@ -46,7 +57,10 @@ public class EjbTagHandler extends ScopedBeanTagSupport{
 		this.beanInterface = beanInterface;
 	}
 
-
+	public void setBeanInterface(String beanInterface) throws ClassNotFoundException{
+		this.beanInterface = ReflectUtil.findClass(beanInterface);
+	}
+	
 	public String getBeanName() {
 		return beanName;
 	}
