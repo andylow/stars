@@ -18,6 +18,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.mock.MockHttpServletRequest;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
 
 import org.springframework.beans.factory.annotation.Autowire;
@@ -25,6 +26,7 @@ import org.stripesstuff.stripersist.EntityFormatter;
 import org.stripesstuff.stripersist.EntityTypeConverter;
 import org.stripesstuff.stripersist.Stripersist;
 
+import com.siberhus.stars.ServiceBean;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsBootstrap;
 import com.siberhus.stars.StarsRuntimeException;
@@ -58,6 +60,8 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	/** The Configuration Key for looking up the name of the LifecycleMethodManager class. */
 	public static final String SERVICE_BEAN_REGISTRY = "ServiceBeanRegistry.Class";
+	
+	public static final String SERVICE_RESOLVER_PACKAGES = "ServiceResolver.Packages";	
 	
 	/** The Configuration Key for looking up the name of the JndiLocator class. */
 	public static final String JNDI_LOCATOR = "JndiLocator.Class";
@@ -128,22 +132,6 @@ public class StarsConfiguration extends RuntimeConfiguration {
 				throw new StarsRuntimeException("Unknow service provider: "+sp);
 			}
 		}
-		if(serviceProvider==ServiceProvider.SPRING){
-			String aw = getBootstrapPropertyResolver().getProperty(SPRING_AUTOWIRE);
-			if(aw!=null){
-				if(Autowire.BY_NAME.toString().equalsIgnoreCase(aw)){
-					springAutowire = Autowire.BY_NAME;
-				}else if(Autowire.BY_TYPE.toString().equalsIgnoreCase(aw)){
-					springAutowire = Autowire.BY_TYPE;
-				}else if(Autowire.NO.toString().equalsIgnoreCase(aw)){
-					springAutowire = Autowire.NO;
-				}else{
-					throw new StarsRuntimeException("Unknow Spring Autowire value: "+aw);
-				}
-			}else{
-				springAutowire = Autowire.BY_NAME;
-			}
-		}
 		
 		initJndiDefaultLookupTable();
 		
@@ -185,8 +173,26 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	                ("Problem instantiating default configuration objects.", e);
 	    }
 		
-		
 //		initTypeFormatterAndConverter();
+		
+		if(serviceProvider==ServiceProvider.STARS){
+			registerServices();
+		}else if(serviceProvider==ServiceProvider.SPRING){
+			String aw = getBootstrapPropertyResolver().getProperty(SPRING_AUTOWIRE);
+			if(aw!=null){
+				if(Autowire.BY_NAME.toString().equalsIgnoreCase(aw)){
+					springAutowire = Autowire.BY_NAME;
+				}else if(Autowire.BY_TYPE.toString().equalsIgnoreCase(aw)){
+					springAutowire = Autowire.BY_TYPE;
+				}else if(Autowire.NO.toString().equalsIgnoreCase(aw)){
+					springAutowire = Autowire.NO;
+				}else{
+					throw new StarsRuntimeException("Unknow Spring Autowire value: "+aw);
+				}
+			}else{
+				springAutowire = Autowire.BY_NAME;
+			}
+		}
 		
 		scanActionBeans();
 		
@@ -194,9 +200,27 @@ public class StarsConfiguration extends RuntimeConfiguration {
 		
 	}
 	
+	protected void registerServices(){
+		String servicePackagesParam = getBootstrapPropertyResolver()
+		.getProperty(SERVICE_RESOLVER_PACKAGES);
+		String[] servicePackages = StringUtil.standardSplit(servicePackagesParam);
+		
+		ResolverUtil<Object> serviceResolver = new ResolverUtil<Object>();
+		log.debug("Resolving all service classes that are annotated by NgaiService annotation in packages: {}",
+				servicePackagesParam);
+		serviceResolver.findAnnotated(ServiceBean.class, servicePackages);
+		try {
+			for (Class<?> serviceClass : serviceResolver.getClasses()) {
+				log.debug("Registering service: ", serviceClass);
+				getServiceBeanRegistry().register(serviceClass);
+			}
+		} catch (Throwable e) {
+			throw new StarsRuntimeException("Service Initializing Failed",e);
+		}
+	}
 	
 	@Override
-	protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
+	protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors() {
 		Map<LifecycleStage, Collection<Interceptor>> map = super
 				.initCoreInterceptors();
 		coreInterceptor = new StarsCoreInterceptor();
@@ -208,7 +232,7 @@ public class StarsConfiguration extends RuntimeConfiguration {
 		
 		return map;
 	}
-	
+
 	// Uses stripersist
 	protected void initTypeFormatterAndConverter() {
 
@@ -283,8 +307,15 @@ public class StarsConfiguration extends RuntimeConfiguration {
 					
 					StarsBootstrap bootstrap = initClass.newInstance();
 					dependencyManager.inspectAttributes(initClass);
-					dependencyManager.inject(mockRequest, bootstrap);
-					bootstrap.init();
+					if(serviceProvider==ServiceProvider.STARS){
+						Stripersist.requestInit();
+						dependencyManager.inject(mockRequest, bootstrap);
+						bootstrap.init();
+						Stripersist.requestComplete();
+					}else{
+						dependencyManager.inject(mockRequest, bootstrap);
+						bootstrap.init();
+					}
 				}
 			} catch (Exception e) {
                  log.error(e, "Error occurred while calling init() on ", initClass, ".");

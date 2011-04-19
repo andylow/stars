@@ -5,7 +5,6 @@ import javax.servlet.jsp.JspException;
 
 import net.sourceforge.stripes.util.ReflectUtil;
 
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -26,7 +25,11 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 				bean = springContext.getBean(name);
 			} else if (type != null) {
 				try {
-					bean = springContext.getBean(ReflectUtil.findClass(type));
+					Class<?> typeClass = ReflectUtil.findClass(type);
+					if(!typeClass.isInterface()){
+						throw new IllegalArgumentException("Type attribute must be interface class");
+					}
+					bean = springContext.getBean(typeClass);
 				} catch (ClassNotFoundException e) {
 					throw new JspException(e);
 				}
