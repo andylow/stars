@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.WebServiceRef;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.Log;
 
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ import com.siberhus.stars.utils.AnnotatedAttributeUtils;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils.AnnotatedAttribute;
 
 public class DefaultDependencyManager implements DependencyManager {
+	
+	private final Log log = Log.getInstance(DefaultDependencyManager.class);
 	
 	private SpringBeanHolder springBeanHolder;
 	
@@ -94,9 +97,10 @@ public class DefaultDependencyManager implements DependencyManager {
 			if(Service.class == annotType){
 				Class<?> serviceInfClass = attrType;//Service Bean interface
 				Object serviceBean = configuration.getServiceBeanRegistry()
-					.get(request, serviceInfClass, ((Service)annot).impl());
+					.get(request, ((Service)annot).impl());
 				
 				//Inject proxy object to target attribute
+				log.debug("Injecting Stars ServiceBean: ",serviceBean, " to ",targetObj);
 				annotAttr.set(targetObj, serviceBean);
 				
 				if(serviceBean==null){
@@ -115,6 +119,7 @@ public class DefaultDependencyManager implements DependencyManager {
 				}else{
 					em = Stripersist.getEntityManager(pc.unitName());
 				}
+				log.debug("Injecting EntityManager: ",em," to ",targetObj);
 				annotAttr.set(targetObj, em);
 			}else if(PersistenceUnit.class == annotType){
 				PersistenceUnit pu = (PersistenceUnit)annot;
@@ -124,6 +129,7 @@ public class DefaultDependencyManager implements DependencyManager {
 				}else{
 					emf = Stripersist.getEntityManagerFactory(pu.unitName());
 				}
+				log.debug("Injecting EntityManagerFactory: ",emf," to ",targetObj);
 				annotAttr.set(targetObj, emf);
 			}
 			
@@ -137,6 +143,7 @@ public class DefaultDependencyManager implements DependencyManager {
 				}
 				Object ejbBean = configuration.getEjbLocator().lookup(request.getContextPath(), ejbInfClass, ejbAnnot.name(), 
 						ejbAnnot.lookup(), ejbAnnot.mappedName(), ejbAnnot.name());
+				log.debug("Injecting EJB Session Bean: ",ejbBean," to ",targetObj);
 				annotAttr.set(targetObj, ejbBean);
 			}
 			
@@ -149,6 +156,7 @@ public class DefaultDependencyManager implements DependencyManager {
 					annotAttr.set(targetObj, springBean);
 				}else if(configuration.getSpringAutowire()==Autowire.BY_TYPE){
 					Object springBean = springBeanHolder.getApplicationContext().getBean(attrType);
+					log.debug("Injecting Spring Bean: ",springBean," to ",targetObj);
 					annotAttr.set(targetObj, springBean);
 				}
 			}else if(PersistenceContext.class == annotType){
@@ -160,6 +168,7 @@ public class DefaultDependencyManager implements DependencyManager {
 					em = springBeanHolder.getEntityManagerFactory(
 							pc.unitName()).createEntityManager();
 				}
+				log.debug("Injecting EntityManager: ",em," to ",targetObj);
 				annotAttr.set(targetObj, em);
 			}else if(PersistenceUnit.class == annotType){
 				PersistenceUnit pu = (PersistenceUnit)annot;
@@ -169,6 +178,7 @@ public class DefaultDependencyManager implements DependencyManager {
 				}else{
 					emf = springBeanHolder.getEntityManagerFactory(pu.unitName());
 				}
+				log.debug("Injecting EntityManagerFactory: ",emf," to ",targetObj);
 				annotAttr.set(targetObj, emf);
 			}
 			
@@ -182,6 +192,8 @@ public class DefaultDependencyManager implements DependencyManager {
 				String resName = "".equals(resAnnot.name())?annotAttr.getAttributeName():resAnnot.name();
 				Object resBean = configuration.getResourceLocator().lookup(resName, resAnnot.mappedName(), 
 						resType, resAnnot.authenticationType(), resAnnot.shareable());
+				
+				log.debug("Injecting Resource: ",resBean," to ",targetObj);
 				annotAttr.set(targetObj, resBean);
 				
 			}else if(WebServiceRef.class == annotType){

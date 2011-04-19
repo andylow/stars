@@ -8,6 +8,6 @@ public interface ServiceBeanRegistry extends ConfigurableComponent{
 	
 	public void register(Class<?> serviceClass);
 	
-	public Object get(HttpServletRequest request, Class<?> infClass, Class<?> implClass);
+	public Object get(HttpServletRequest request, Class<?> implClass);
 	
 }

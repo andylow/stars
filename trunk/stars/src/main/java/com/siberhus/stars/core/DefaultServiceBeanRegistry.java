@@ -59,7 +59,7 @@ public class DefaultServiceBeanRegistry implements ServiceBeanRegistry {
 	}
 	
 	@Override
-	public Object get(HttpServletRequest request, Class<?> infClass, Class<?> implClass)  {
+	public Object get(HttpServletRequest request, Class<?> implClass)  {
 		
 		Object service = null;
 		
@@ -70,19 +70,19 @@ public class DefaultServiceBeanRegistry implements ServiceBeanRegistry {
 		}
 		
 		try{
-			if(!infClass.isInterface()){
-				throw new StarsRuntimeException("Service should be referenced via its interface");
-			}
+//			if(!infClass.isInterface()){
+//				throw new StarsRuntimeException("Service should be referenced via its interface");
+//			}
 			if(implClass.isInterface() 
 					|| Modifier.isAbstract(implClass.getModifiers())){
 				// Implementation class must be able to instantiate.
 				throw new StarsRuntimeException("Implementation class "
 						+implClass.getName()+" must be a concrete class");
 			}
-			if(!infClass.isAssignableFrom(implClass)){
-				throw new StarsRuntimeException("Implementation class "
-						+implClass.getName()+" must be a type of "+infClass.getName());
-			}
+//			if(!infClass.isAssignableFrom(implClass)){
+//				throw new StarsRuntimeException("Implementation class "
+//						+implClass.getName()+" must be a type of "+infClass.getName());
+//			}
 			
 			service = getServiceInScope(request, implClass, scope);
 			service = ServiceBeanProxy.newInstance(service);
