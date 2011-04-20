@@ -52,7 +52,7 @@ public abstract class StarsServiceBaseTestCase extends AbstractBaseTestCase {
 	
 	@After
 	public void destroy(){
-		Stripersist.requestComplete();
+		Stripersist.requestComplete(null);
 	}
 	
 }

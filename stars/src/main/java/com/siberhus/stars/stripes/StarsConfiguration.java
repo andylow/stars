@@ -14,6 +14,7 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.mock.MockHttpServletRequest;
 import net.sourceforge.stripes.util.Log;
@@ -36,6 +37,8 @@ import com.siberhus.stars.core.DefaultServiceBeanRegistry;
 import com.siberhus.stars.core.DependencyManager;
 import com.siberhus.stars.core.LifecycleMethodManager;
 import com.siberhus.stars.core.ServiceBeanRegistry;
+import com.siberhus.stars.core.StarsExceptionHandler;
+import com.siberhus.stars.core.StarsExceptionHandlerProxy;
 import com.siberhus.stars.ejb.DefaultEjbLocator;
 import com.siberhus.stars.ejb.DefaultJndiLocator;
 import com.siberhus.stars.ejb.DefaultResourceLocator;
@@ -116,8 +119,6 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	@Override
 	public void init() {
 		
-		super.init();
-		
 		getServletContext().setAttribute(ROOT_STARS_CONFIG_CONTEXT_ATTRIBUTE, this);
 		
 		String sp = getBootstrapPropertyResolver().getProperty(SERVICE_PROVIDER);
@@ -132,6 +133,8 @@ public class StarsConfiguration extends RuntimeConfiguration {
 				throw new StarsRuntimeException("Unknow service provider: "+sp);
 			}
 		}
+		
+		super.init();
 		
 		initJndiDefaultLookupTable();
 		
@@ -173,11 +176,17 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	                ("Problem instantiating default configuration objects.", e);
 	    }
 		
-//		initTypeFormatterAndConverter();
-		
-		if(serviceProvider==ServiceProvider.STARS){
+		if(ServiceProvider.STARS == serviceProvider){
+			
+			getFormatterFactory().add(Entity.class, EntityFormatter.class);
+			getFormatterFactory().add(MappedSuperclass.class, EntityFormatter.class);
+
+			getTypeConverterFactory().add(Entity.class, EntityTypeConverter.class);
+			getTypeConverterFactory().add(MappedSuperclass.class,EntityTypeConverter.class);
+			
 			registerServices();
-		}else if(serviceProvider==ServiceProvider.SPRING){
+			
+		}else if(ServiceProvider.SPRING == serviceProvider){
 			String aw = getBootstrapPropertyResolver().getProperty(SPRING_AUTOWIRE);
 			if(aw!=null){
 				if(Autowire.BY_NAME.toString().equalsIgnoreCase(aw)){
@@ -232,17 +241,20 @@ public class StarsConfiguration extends RuntimeConfiguration {
 		
 		return map;
 	}
-
-	// Uses stripersist
-	protected void initTypeFormatterAndConverter() {
-
-		getFormatterFactory().add(Entity.class, EntityFormatter.class);
-		getFormatterFactory().add(MappedSuperclass.class, EntityFormatter.class);
-
-		getTypeConverterFactory().add(Entity.class, EntityTypeConverter.class);
-		getTypeConverterFactory().add(MappedSuperclass.class,EntityTypeConverter.class);
-	}
 	
+	
+	@Override
+	protected ExceptionHandler initExceptionHandler() {
+		ExceptionHandler exceptionHandler = super.initExceptionHandler();
+		if(ServiceProvider.STARS==serviceProvider){
+			if(exceptionHandler==null){
+				return new StarsExceptionHandler();
+			}
+			return (ExceptionHandler)StarsExceptionHandlerProxy
+				.newInstance(exceptionHandler);
+		}
+		return exceptionHandler;
+	}
 	
 	protected void initJndiDefaultLookupTable(){
 		String mapString = getBootstrapPropertyResolver().getProperty(JNDI_DEFAULT_LOOKUP_TABLE);
@@ -311,7 +323,7 @@ public class StarsConfiguration extends RuntimeConfiguration {
 						Stripersist.requestInit();
 						dependencyManager.inject(mockRequest, bootstrap);
 						bootstrap.init();
-						Stripersist.requestComplete();
+						Stripersist.requestComplete(null);
 					}else{
 						dependencyManager.inject(mockRequest, bootstrap);
 						bootstrap.init();
