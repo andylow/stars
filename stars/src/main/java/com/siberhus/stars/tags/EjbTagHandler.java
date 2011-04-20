@@ -5,6 +5,7 @@ import javax.servlet.jsp.JspException;
 
 import net.sourceforge.stripes.util.ReflectUtil;
 
+import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.stripes.StarsConfiguration;
 
 public class EjbTagHandler extends ScopedBeanTagSupport{
@@ -23,6 +24,9 @@ public class EjbTagHandler extends ScopedBeanTagSupport{
 	public int doStartTag() throws JspException {
 		ServletContext servletContext = getPageContext().getServletContext();
 		StarsConfiguration starsConfig = StarsConfiguration.get(servletContext);
+		if(ServiceProvider.EJB!=starsConfig.getServiceProvider()){
+			return SKIP_BODY;
+		}
 		Object bean = getBean();
 		if(bean==null){
 			String contextPath = servletContext.getContextPath();

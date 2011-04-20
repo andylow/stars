@@ -1,5 +1,6 @@
 package com.siberhus.stars.core;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.Service;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsRuntimeException;
+import com.siberhus.stars.ejb.JndiNameRefMap;
 import com.siberhus.stars.spring.SpringBeanHolder;
 import com.siberhus.stars.stripes.StarsConfiguration;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils;
@@ -34,6 +36,8 @@ public class DefaultDependencyManager implements DependencyManager {
 	
 	private SpringBeanHolder springBeanHolder;
 	
+	private JndiNameRefMap jndiNameRefMap;
+	
 	private StarsConfiguration configuration;
 	
 	private boolean inspected = false;
@@ -44,6 +48,11 @@ public class DefaultDependencyManager implements DependencyManager {
 		
 		if(this.configuration.getServiceProvider()==ServiceProvider.SPRING){
 			springBeanHolder = new SpringBeanHolder(configuration.getServletContext());
+		}else if(this.configuration.getServiceProvider()==ServiceProvider.EJB){
+			InputStream webFin = configuration.getServletContext().getResourceAsStream("/WEB-INF/web.xml");
+			if(webFin!=null){
+				jndiNameRefMap = new JndiNameRefMap(webFin);
+			}
 		}
 	}
 	
@@ -145,6 +154,30 @@ public class DefaultDependencyManager implements DependencyManager {
 						ejbAnnot.lookup(), ejbAnnot.mappedName(), ejbAnnot.name());
 				log.debug("Injecting EJB Session Bean: ",ejbBean," to ",targetObj);
 				annotAttr.set(targetObj, ejbBean);
+			}else if(PersistenceContext.class == annotType){
+				PersistenceContext pc = (PersistenceContext)annot;
+				EntityManager em;
+				if("".equals(pc.unitName())){
+					em = (EntityManager)configuration.getJndiLocator()
+						.lookup(jndiNameRefMap.getEntityManagerJndiName());
+				}else{
+					em = (EntityManager)configuration.getJndiLocator()
+					.lookup(jndiNameRefMap.getEntityManagerJndiName(pc.unitName()));
+				}
+				log.debug("Injecting EntityManager: ",em," to ",targetObj);
+				annotAttr.set(targetObj, em);
+			}else if(PersistenceUnit.class == annotType){
+				PersistenceUnit pu = (PersistenceUnit)annot;
+				EntityManagerFactory emf;
+				if("".equals(pu.unitName())){
+					emf = (EntityManagerFactory)configuration.getJndiLocator()
+						.lookup(jndiNameRefMap.getEntityManagerFactoryJndiName());
+				}else{
+					emf = (EntityManagerFactory)configuration.getJndiLocator()
+					.lookup(jndiNameRefMap.getEntityManagerFactoryJndiName(pu.unitName()));
+				}
+				log.debug("Injecting EntityManager: ",emf," to ",targetObj);
+				annotAttr.set(targetObj, emf);
 			}
 			
 			//SPRING SERVICE *************************************************************//

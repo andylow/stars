@@ -8,6 +8,9 @@ import net.sourceforge.stripes.util.ReflectUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.siberhus.stars.ServiceProvider;
+import com.siberhus.stars.stripes.StarsConfiguration;
+
 public class SpringTagHandler extends ScopedBeanTagSupport {
 
 	private String name;
@@ -17,6 +20,10 @@ public class SpringTagHandler extends ScopedBeanTagSupport {
 	@Override
 	public int doStartTag() throws JspException {
 		ServletContext servletContext = getPageContext().getServletContext();
+		StarsConfiguration starsConfig = StarsConfiguration.get(servletContext);
+		if(ServiceProvider.SPRING!=starsConfig.getServiceProvider()){
+			return SKIP_BODY;
+		}
 		Object bean = getBean();
 		if(bean==null){
 			ApplicationContext springContext = WebApplicationContextUtils
