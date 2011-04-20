@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	
+    <description>
+      Stripes Examples
+    </description>
+    <display-name>Stripes Examples</display-name>
+	
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+	
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--              Configuration of the Stripes Filter.                   -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <filter>
+        <description>
+            Provides essential configuration and request processing services
+            for the Stripes framework.
+        </description>
+        <display-name>Stripes Filter</display-name>
+        <filter-name>StripesFilter</filter-name>
+        <filter-class>net.sourceforge.stripes.controller.StripesFilter</filter-class>
+
+        <!-- REQUIRED init parameter for the Stripes Filter. -->
+        <init-param>
+            <param-name>ActionResolver.Packages</param-name>
+            <param-value>net.sourceforge.stripes.examples</param-value>
+        </init-param>
+		<init-param>
+			<param-name>Extension.Packages</param-name>
+			<param-value>com.siberhus.stars.stripes</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Configuration.Classe</param-name>
+			<param-value>com.siberhus.stars.stripes.StarsConfiguration</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Bootstrap.Classes</param-name>
+			<param-value>net.sourceforge.stripes.examples.bugzooky.BugzookyBootstrap</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Service.Provider</param-name>
+			<param-value>spring</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Spring.Autowire</param-name>
+			<param-value>BY_NAME</param-value>
+		</init-param>
+		<!-- 
+        <init-param>
+        	<param-name>ActionResolver.Class</param-name>
+        	<param-value>com.siberhus.stars.spring.AnnotatedClassSpringActionResolver</param-value>
+        </init-param>
+         -->
+        <init-param>
+			<param-name>ServiceResolver.Packages</param-name>
+			<param-value>
+				net.sourceforge.stripes.examples.service
+				net.sourceforge.stripes.examples.bugzooky.biz
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>JndiLocator.Class</param-name>
+			<param-value>com.siberhus.stars.ejb.DefaultJndiLocator</param-value>
+		</init-param>
+		<init-param>
+			<param-name>EjbLocator.Class</param-name>
+			<param-value>com.siberhus.stars.ejb.DefaultEjbLocator</param-value>
+		</init-param>
+		<init-param>
+			<param-name>JNDI.DefaultLookupTable</param-name>
+			<param-value>
+				javax.sql.DataSource=jdbc/bugzookyDs
+				javax.persistence.EntityManager=persistence/em
+				javax.persistence.EntityManagerFactory=persistence/emf
+			</param-value>
+		</init-param>
+		<!-- 
+		<init-param>
+			<param-name>JNDI.Properties</param-name>
+			<param-value>
+				java.naming.factory.initial=org.apache.openejb.client.LocalInitialContextFactory
+				bugzookyDs=new://Resource?type=DataSource
+				bugzookyDs.JdbcDriver=org.hsqldb.jdbcDriver
+				bugzookyDs.JdbcUrl=jdbc:hsqldb:mem:bugzooky
+				
+				bugzookyDsUnmanaged=new://Resource?type=DataSource
+				bugzookyDsUnmanaged.JdbcDriver=org.hsqldb.jdbcDriver
+				bugzookyDsUnmanaged.JdbcUrl=jdbc:hsqldb:mem:bugzooky
+				bugzookyDsUnmanaged.JtaManaged=false
+			</param-value>
+		</init-param>
+		 -->
+		
+        <!-- Optional init parameter for the Stripes Filter. -->
+        <init-param>
+            <param-name>ActionBeanContext.Class</param-name>
+            <param-value>net.sourceforge.stripes.examples.bugzooky.BugzookyActionBeanContext</param-value>
+        </init-param>
+		
+        <init-param>
+            <param-name>Stripes.EncryptionKey</param-name>
+            <param-value>Don't Copy/Paste Me! Make up your own encryption key and keep it secret!</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>StripesFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>StripesFilter</filter-name>
+        <servlet-name>StripesDispatcher</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--         Configuration of Bugzooky security filter.                  -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <filter>
+        <description>Provides login security for Bugzooky</description>
+        <filter-name>BugzookySecurityFilter</filter-name>
+        <filter-class>net.sourceforge.stripes.examples.bugzooky.SecurityFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>BugzookySecurityFilter</filter-name>
+        <url-pattern>/bugzooky/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>BugzookySecurityFilter</filter-name>
+        <url-pattern>/examples/bugzooky/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--         Configuration of the Stripes dispatcher Servlet.            -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <servlet>
+        <servlet-name>StripesDispatcher</servlet-name>
+        <servlet-class>net.sourceforge.stripes.controller.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>StripesDispatcher</servlet-name>
+        <url-pattern>/dispatcher</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>StripesDispatcher</servlet-name>
+        <url-pattern>/action/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>StripesDispatcher</servlet-name>
+        <url-pattern>*.action</url-pattern>
+    </servlet-mapping>
+    
+	<resource-env-ref>
+		<resource-env-ref-name>jdbc/bugzookyDs</resource-env-ref-name>
+		<resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
+	</resource-env-ref>
+	
+    <persistence-context-ref>
+		<persistence-context-ref-name>persistence/em</persistence-context-ref-name>
+		<persistence-unit-name>default</persistence-unit-name>
+	</persistence-context-ref>
+	
+	<persistence-unit-ref>
+		<persistence-unit-ref-name>persistence/emf</persistence-unit-ref-name>
+		<persistence-unit-name>default</persistence-unit-name>
+	</persistence-unit-ref>
+	
+</web-app>
