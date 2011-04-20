@@ -17,7 +17,6 @@ package org.stripesstuff.stripersist;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -89,13 +88,7 @@ import org.w3c.dom.NodeList;
 @Intercepts( { LifecycleStage.RequestInit, LifecycleStage.RequestComplete })
 public class Stripersist implements Interceptor, ConfigurableComponent {
     private static final Log log = Log.getInstance(Stripersist.class);
-
-    /**
-     * Parameter name for specifying StripersistInit classes in web.xml. This is optional;
-     * StripersistInit classes are also loaded via the Extension.Packages.
-     */
-    public static final String INIT_CLASSES_PARAM_NAME = "StripersistInit.Classes";
-
+    
     /**
      * Boolean initialization parameter that enables or disables automatic starting of transactions
      * with each request.
@@ -172,20 +165,7 @@ public class Stripersist implements Interceptor, ConfigurableComponent {
             dontRollbackTransactions = getConfigurationSwitch(DONT_ROLLBACK_TRANSACTION, dontRollbackTransactions);
             if (dontRollbackTransactions)
                 log.warn("Transactions will NOT be rolled back automatically. This is only intended to be used for unit testing.");
-
-            requestInit();
-            for (Class<? extends StripersistInit> initClass : configuration.getBootstrapPropertyResolver()
-                    .getClassPropertyList(INIT_CLASSES_PARAM_NAME, StripersistInit.class)) {
-                try {
-                    if (!initClass.isInterface() && ((initClass.getModifiers() & Modifier.ABSTRACT) == 0)) {
-                        log.debug("Found StripersistInit class ", initClass, " - instanciating and calling init()");
-                        initClass.newInstance().init();
-                    }
-                } catch (Exception e) {
-                    log.error(e, "Error occurred while calling init() on ", initClass, ".");
-                }
-            }
-            requestComplete();
+            
         } catch (Exception e) {
             log.error(e);
         }
@@ -659,7 +639,7 @@ public class Stripersist implements Interceptor, ConfigurableComponent {
      */
     public static void requestInit() {
         Map<EntityManagerFactory, EntityManager> map = threadEntityManagers.get();
-
+        
         if (map == null) {
             map = new ConcurrentHashMap<EntityManagerFactory, EntityManager>();
             threadEntityManagers.set(map);
@@ -673,27 +653,32 @@ public class Stripersist implements Interceptor, ConfigurableComponent {
      * your own thread you should make sure this is in a finally block so
      * everything gets cleaned up.
      */
-    public static void requestComplete() {
+    public static void requestComplete(Throwable e) {
         Map<EntityManagerFactory, EntityManager> map = Stripersist.threadEntityManagers.get();
 
         if (map == null) {
             // looks like nobody needed us this time
             return;
         }
-
+        
         log.trace("Cleaning up EntityManagers");
-
+        
         Stripersist.threadEntityManagers.remove();
-
+        
         for (EntityManager entityManager : map.values()) {
             EntityTransaction transaction = entityManager.getTransaction();
-
+            
             if (transaction != null) {
-                if (transaction.isActive()) {
-                    transaction.rollback();
+                if (transaction.isActive() && automaticTransactions) {
+                	if(e instanceof RuntimeException){
+                		transaction.rollback();
+                	}else{
+                		//Checked exception or Null fall to this case
+                		transaction.commit();
+                	}
                 }
             }
-
+            
             if (entityManager.isOpen()) {
                 entityManager.close();
             }
@@ -717,7 +702,7 @@ public class Stripersist implements Interceptor, ConfigurableComponent {
                     break;
                 case RequestComplete:
                     log.trace("RequestComplete");
-                    requestComplete();
+                    requestComplete(null);
                     break;
             }
         }
