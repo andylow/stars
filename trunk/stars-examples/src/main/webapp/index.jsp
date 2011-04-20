@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
     <head>
-        <title>Stripes Examples</title>
+        <title>Stars & Stripes Examples</title>
         <style type="text/css">
             body {
                 font-family: arial, sans-serif;
@@ -39,7 +39,7 @@
         <h1><img src="logo.png" alt="Stripes" /> Examples</h1>
 
         <div class="pageContent">
-            <p>Stripes currently ships with three examples:</p>
+            <p>Stars & Stripes currently ships with three examples:</p>
 
             <ul>
                 <li>A simple <a href="${pageContext.request.contextPath}/quickstart/calc.action">quickstart</a> example (a simple calculator)</li>
@@ -58,12 +58,13 @@
 		
         <hr style="height: 1px;"/>
 
-        <h2>Stripes Online Resources</h2>
+        <h2>Stars & Stripes Online Resources</h2>
         <div>
             <p>More information about Stripes is available online. The following documentation is
             available to help you learn and develop with Stripes:</p>
 
             <ul>
+            	<li>The Stars <a href="http://www.siberhus.com/web/opensources/stars">everything about Stars is here</a></li>
                 <li>The Stripes <a href="http://www.stripesframework.org">documentation website</a> includes
                     lots of reference and How-To documentation.</li>
                 <li>The <a href="http://stripes.sourceforge.net/docs/current/javadoc">Stripes API documentation</a>

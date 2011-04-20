@@ -51,7 +51,7 @@
                             intuitive to developers and to require the minimum amount of code and
                             configuration.</p>
 							<p>
-							<a href="http://www.siberhus.com/opensources/stars/">Stars</a> is a Stripes framework extension
+							<a href="http://www.siberhus.com/web/opensources/stars/">Stars</a> is a Stripes framework extension
 							for developing full stack web application in Java. Although Stripes is an awesome easy web framework for Java,
 							but it's not enough to develop a real world application that need persistence technology and service engine.
 							Stars aims to integrate the existing great technology in persistence and enterprise servicing to Stripes framework
