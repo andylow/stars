@@ -142,4 +142,15 @@
         <servlet-name>StripesDispatcher</servlet-name>
         <url-pattern>*.action</url-pattern>
     </servlet-mapping>
+    
+    <persistence-context-ref>
+		<persistence-context-ref-name>persistence/em</persistence-context-ref-name>
+		<persistence-unit-name>default</persistence-unit-name>
+	</persistence-context-ref>
+	
+	<persistence-unit-ref>
+		<persistence-unit-ref-name>persistence/emf</persistence-unit-ref-name>
+		<persistence-unit-name>default</persistence-unit-name>
+	</persistence-unit-ref>
+	
 </web-app>
