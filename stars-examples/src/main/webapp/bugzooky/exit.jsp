@@ -9,7 +9,7 @@
         Stripes you might like to check out:</p>
 
         <ul>
-        	<li>The Stars Website - <a href="http://www.siberhus.com/opensources/stars">http://www.siberhus.com/opensources/stars</a></li>
+        	<li>The Stars Website - <a href="http://www.siberhus.com/web/opensources/stars">http://www.siberhus.com/opensources/stars</a></li>
             <li>The Stripes Website - <a href="http://www.stripesframework.org">http://www.stripesframework.org</a></li>
         </ul>
     </stripes:layout-component>
