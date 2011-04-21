@@ -10,6 +10,9 @@
         <stars:spring id="componentManager" type="net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager"/>
        	<stars:spring id="personManager" name="personManager"/>
        	
+       	<stars:ejb id="componentManager" beanInterface="net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager"/>
+		<stars:ejb id="personManager" beanInterface="net.sourceforge.stripes.examples.bugzooky.biz.PersonManager"/>
+		
         <stripes:errors/>
 		
         <stripes:form action="${actionBeanUrl }" focus="bug.shortDescription">
