@@ -9,31 +9,41 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.ReflectUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.ejb.DefaultEjbLocator;
 
 public class Glassfish3EjbLocator extends DefaultEjbLocator {
 
+	private final Logger log = LoggerFactory.getLogger(Glassfish3EjbLocator.class);
+	
 	private static final Map<Class<?>, String> GLOBAL_EJB_JNDI_MAP = new ConcurrentHashMap<Class<?>, String>();
 	
 	@Override
 	public void init(Configuration configuration) throws Exception {
 		super.init(configuration);
-		updateLocalJndiMap(jndiLocator.getContext(), "");
+		updateLocalJndiMap(configuration.getServletContext().getContextPath(), 
+				jndiLocator.getContext(), "");
 	}
 	
 	@Override
 	public Object lookup(String contextPath, Class<?> beanInterface,
 			String beanName, String lookup, String name, String mappedName)
 			throws NamingException {
-		if(!"".equals(lookup)){
+		log.debug("Found EJB interface: {}",beanInterface);
+		if(lookup!=null && !"".equals(lookup.trim())){
 			return jndiLocator.lookup(lookup);
 		}
-		return GLOBAL_EJB_JNDI_MAP.get(beanInterface);
+		String jndiName = GLOBAL_EJB_JNDI_MAP.get(beanInterface);
+		log.debug("Looing up JNDI name: {}",jndiName);
+		return jndiLocator.lookup(jndiName);
 	}
 	
-	private void updateLocalJndiMap(Context ctx, String parent) {
+	private void updateLocalJndiMap(String contextPath, Context ctx, String parent) {
 		try {
 			NamingEnumeration<Binding> list = ctx.listBindings("");
 			while (list.hasMore()) {
@@ -47,18 +57,22 @@ public class Glassfish3EjbLocator extends DefaultEjbLocator {
 						|| "javax.naming.Reference".equals(className)) {
 					int startIdx = name.indexOf("!");
 					if(startIdx!=-1){
-						name = name.substring(startIdx+1, name.length());
-						GLOBAL_EJB_JNDI_MAP.put(Class.forName(name), "java:global/"+name);
+						String infClassName = name.substring(startIdx+1, name.length());
+						try{
+							Class<?> infClass = ReflectUtil.findClass(infClassName);
+							//The contextPath starts with a / character but does not end with a / character
+							String jndiName = "java:global"+contextPath+"/"+name;
+							log.info("Resolved JNDI name for EJB: {} is {}",new Object[]{infClass,jndiName});
+							GLOBAL_EJB_JNDI_MAP.put(infClass, jndiName);
+						}catch(ClassNotFoundException e){}
 					}
 				}
 				Object o = item.getObject();
 				if (o instanceof javax.naming.Context) {
-					updateLocalJndiMap((Context) o, parent + "/");
+					updateLocalJndiMap(contextPath, (Context) o, parent + "/");
 				}
 			}
 		} catch (NamingException e) {
-			throw new StarsRuntimeException(e);
-		} catch (ClassNotFoundException e){
 			throw new StarsRuntimeException(e);
 		}
 	}

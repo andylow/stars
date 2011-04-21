@@ -46,7 +46,7 @@ public class JndiNameRefMap {
 					unitName = childNode.getTextContent();
 				}
 			}
-			setEntityManagerName(unitName, refName);
+			setEntityManagerName(unitName, "java:comp/env/"+refName);
 		}
 		nodeList = document.getElementsByTagName("persistence-unit-ref");
 		for (int i = 0; i < nodeList.getLength(); i++) {
@@ -64,7 +64,7 @@ public class JndiNameRefMap {
 					unitName = childNode.getTextContent();
 				}
 			}
-			setEntityManagerFactoryName(unitName, refName);
+			setEntityManagerFactoryName(unitName, "java:comp/env/"+refName);
 		}
 	}
 

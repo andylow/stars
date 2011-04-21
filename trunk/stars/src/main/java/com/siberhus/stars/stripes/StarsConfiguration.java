@@ -17,11 +17,12 @@ import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.mock.MockHttpServletRequest;
-import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.stripesstuff.stripersist.EntityFormatter;
 import org.stripesstuff.stripersist.EntityTypeConverter;
@@ -48,7 +49,7 @@ import com.siberhus.stars.ejb.ResourceLocator;
 
 public class StarsConfiguration extends RuntimeConfiguration {
 	
-	private static final Log log = Log.getInstance(StarsConfiguration.class);
+	private static final Logger log = LoggerFactory.getLogger(StarsConfiguration.class);
 	
 	public static final String ROOT_STARS_CONFIG_CONTEXT_ATTRIBUTE = StarsConfiguration.class.getName()+".ROOT";
 	
@@ -105,9 +106,10 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	static {
 		Package pkg = StarsConfiguration.class.getPackage();
-		log.info("\r\n##################################################",
-                "\r\n# Stars Version: ", pkg.getSpecificationVersion(), ", Build: ", pkg.getImplementationVersion(),
-                "\r\n##################################################");
+		log.info("\r\n##################################################"+
+                "\r\n# Stars Version: {},  Build:  {}"+
+                "\r\n##################################################"
+                ,new Object[]{pkg.getSpecificationVersion(), pkg.getImplementationVersion()});
 	}
 	
 	private StarsCoreInterceptor coreInterceptor;
@@ -220,7 +222,7 @@ public class StarsConfiguration extends RuntimeConfiguration {
 		serviceResolver.findAnnotated(ServiceBean.class, servicePackages);
 		try {
 			for (Class<?> serviceClass : serviceResolver.getClasses()) {
-				log.debug("Registering service: ", serviceClass);
+				log.debug("Registering service: {}", serviceClass);
 				getServiceBeanRegistry().register(serviceClass);
 			}
 		} catch (Throwable e) {
@@ -315,22 +317,22 @@ public class StarsConfiguration extends RuntimeConfiguration {
 			.getClassPropertyList(BOOTSTRAPS, StarsBootstrap.class)) {
 			try {
 				if (!initClass.isInterface() && ((initClass.getModifiers() & Modifier.ABSTRACT) == 0)) {
-					log.debug("Found StripersistInit class ", initClass, " - instanciating and calling init()");
+					log.debug("Found StarsBootstrap class: {}  - instanciating and calling init()", initClass);
 					
 					StarsBootstrap bootstrap = initClass.newInstance();
 					dependencyManager.inspectAttributes(initClass);
 					if(serviceProvider==ServiceProvider.STARS){
 						Stripersist.requestInit();
 						dependencyManager.inject(mockRequest, bootstrap);
-						bootstrap.init();
+						bootstrap.init(getServletContext());
 						Stripersist.requestComplete(null);
 					}else{
 						dependencyManager.inject(mockRequest, bootstrap);
-						bootstrap.init();
+						bootstrap.init(getServletContext());
 					}
 				}
 			} catch (Exception e) {
-                 log.error(e, "Error occurred while calling init() on ", initClass, ".");
+                 log.error("Error occurred while calling init() on "+initClass, e);
 			}
 		}
 	}

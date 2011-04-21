@@ -13,6 +13,8 @@ import javax.annotation.PreDestroy;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -21,6 +23,8 @@ import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.stripes.StarsConfiguration;
 
 public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
+	
+	private final Logger log = LoggerFactory.getLogger(DefaultLifecycleMethodManager.class);
 	
 	private final Map<Class<?>, Method> I_METHOD_CACHE = new Hashtable<Class<?>, Method>();
 	private final Map<Class<?>, Method> D_METHOD_CACHE = new Hashtable<Class<?>, Method>();
@@ -107,6 +111,7 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	public void invokePostConstructMethod(Object object){
 		checkState(object.getClass());
 		Method method= I_METHOD_CACHE.get(object.getClass());
+		log.debug("Invoking PostConstruct method: {} on instance: {}",new Object[]{method, object});
 		try {
 			if(method!=null) method.invoke(object);
 			if(configuration.getServiceProvider()==ServiceProvider.SPRING){
@@ -125,6 +130,7 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	public void invokePreDestroyMethod(Object object){
 		checkState(object.getClass());
 		Method method = D_METHOD_CACHE.get(object.getClass());
+		log.debug("Invoking PreDestroy method: {} on instance: {}",new Object[]{method, object});
 		try {
 			if(method!=null) method.invoke(object);
 			if(configuration.getServiceProvider()==ServiceProvider.SPRING){
@@ -146,8 +152,4 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 		}
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(RuntimeException.class.isAssignableFrom(StripesRuntimeException.class));
-		System.out.println(StripesRuntimeException.class.isAssignableFrom(RuntimeException.class));
-	}
 }

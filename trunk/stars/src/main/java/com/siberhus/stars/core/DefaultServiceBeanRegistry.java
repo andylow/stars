@@ -153,9 +153,7 @@ public class DefaultServiceBeanRegistry implements ServiceBeanRegistry {
 	
 	private static Object createServiceInstance(Class<?> serviceClass) throws InstantiationException, IllegalAccessException{
 		Object service = serviceClass.newInstance();
-//		if(service instanceof IBeanLifecycle){
-//			((IBeanLifecycle)service).afterCreated();
-//		}
+		
 		return service;
 	}
 }

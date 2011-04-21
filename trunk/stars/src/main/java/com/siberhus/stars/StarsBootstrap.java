@@ -1,5 +1,7 @@
 package com.siberhus.stars;
 
+import javax.servlet.ServletContext;
+
 /**
  * 
  * @author hussachai
@@ -7,7 +9,7 @@ package com.siberhus.stars;
  */
 public interface StarsBootstrap {
 	
-	public void init();
+	public void init(ServletContext servletContext) throws Exception;
 	
 	public void destroy();
 	
