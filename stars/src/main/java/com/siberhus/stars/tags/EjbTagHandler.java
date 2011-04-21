@@ -32,7 +32,7 @@ public class EjbTagHandler extends ScopedBeanTagSupport{
 			String contextPath = servletContext.getContextPath();
 			try {
 				Class<?> beanInterfaceClass = ReflectUtil.findClass(beanInterface) ;
-				starsConfig.getEjbLocator().lookup(contextPath, beanInterfaceClass, 
+				bean = starsConfig.getEjbLocator().lookup(contextPath, beanInterfaceClass, 
 						beanName, lookup, name, mappedName);
 			} catch (Exception e) {
 				throw new JspException(e);

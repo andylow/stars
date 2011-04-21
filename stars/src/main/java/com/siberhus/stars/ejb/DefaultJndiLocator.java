@@ -56,6 +56,8 @@ public class DefaultJndiLocator implements JndiLocator {
 		}
 	}
 
-	
+	protected Map<Class<?>,String> getLocalJndiMap(){
+		return localJndiMap;
+	}
 	
 }

@@ -14,7 +14,7 @@ import org.stripesstuff.stripersist.Stripersist;
 /**
  * <p>
  * Because most {@link EntityManager} implementation which provided by many providers is not thread-safe.<br/>
- * It may cause the concurrency problem when Service/DAO class is singleton or may be shared in serveral thread.<br/>
+ * It may cause the concurrency problem when Service/DAO class is singleton or may be shared in several thread.<br/>
  * To deal with this issue the {@link EntityManager} must be extracted from individual thread store.<br/>
  * And SharedEntityManagerWrapper is come in to play.<br/>
  * 
@@ -93,7 +93,7 @@ public class SharedEntityManagerWrapper implements EntityManager {
 		return getEntityManager(persistenceUnit).createNativeQuery(sqlString);
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public Query createNativeQuery(String sqlString, Class resultClass) {
 		return getEntityManager(persistenceUnit).createNativeQuery(sqlString, resultClass);
