@@ -168,12 +168,12 @@
         <servlet-name>StripesDispatcher</servlet-name>
         <url-pattern>*.action</url-pattern>
     </servlet-mapping>
-    
+    <!-- 
 	<resource-env-ref>
 		<resource-env-ref-name>jdbc/bugzookyDs</resource-env-ref-name>
 		<resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
 	</resource-env-ref>
-	
+	 -->
     <persistence-context-ref>
 		<persistence-context-ref-name>persistence/em</persistence-context-ref-name>
 		<persistence-unit-name>default</persistence-unit-name>
