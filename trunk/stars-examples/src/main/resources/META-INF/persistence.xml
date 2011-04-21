@@ -24,10 +24,13 @@
 	
 	<!-- 
 	<persistence-unit name="default" transaction-type="JTA">
-		<jta-data-source>bugzookyDs</jta-data-source>
-		<non-jta-data-source>bugzookyDsUnmanaged</non-jta-data-source>
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>jdbc/bugzookyDs</jta-data-source>
 		<properties>
-			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)" />
+			<property name="hibernate.connection.datasource" value="jdbc/bugzookyDs" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy" />
+			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
 		</properties>
 	</persistence-unit>
 	 -->
