@@ -17,6 +17,14 @@ public abstract class EjbServiceBaseTestCase extends AbstractBaseTestCase {
 //		filterConfig.addInitParameter(StarsConfiguration.JNDI_DEFAULT_LOOKUP_TABLE, "");
 		filterConfig.addInitParameter(StarsConfiguration.JNDI_LOCATOR, 
 				OpenEjbLocalJndiLocator.class.getName());
+		filterConfig.addInitParameter(StarsConfiguration.JNDI_PROPERTIES, 
+				"bugzookyDs=new://Resource?type=DataSource\n"+
+				"bugzookyDs.JdbcDriver=org.hsqldb.jdbcDriver\n"+
+				"bugzookyDs.JdbcUrl=jdbc:hsqldb:mem:bugzooky\n"+
+				"bugzookyDsUnmanaged=new://Resource?type=DataSource\n"+
+				"bugzookyDsUnmanaged.JdbcDriver=org.hsqldb.jdbcDriver\n"+
+				"bugzookyDsUnmanaged.JdbcUrl=jdbc:hsqldb:mem:bugzooky\n"+
+				"bugzookyDsUnmanaged.JtaManaged=false\n");
 	}
 	
 	@Override
@@ -29,7 +37,7 @@ public abstract class EjbServiceBaseTestCase extends AbstractBaseTestCase {
 	@Override
 	protected Class[] getActionBeanClasses() {
 		return new Class[]{
-			EjbCalculatorAction.class
+			EjbCalculatorAction.class,
 		};
 	}
 }

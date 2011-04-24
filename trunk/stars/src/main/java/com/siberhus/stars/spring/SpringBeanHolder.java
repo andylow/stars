@@ -1,5 +1,6 @@
 package com.siberhus.stars.spring;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,21 +10,24 @@ import javax.servlet.ServletContext;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.jpa.AbstractEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class SpringBeanHolder {
 	
 	private ApplicationContext applicationContext;
 	
-	private final Map<String, AbstractEntityManagerFactoryBean> entityManagerFactoryMap 
-		= new HashMap<String, AbstractEntityManagerFactoryBean>();
+	private Map<String, AbstractEntityManagerFactoryBean> entityManagerFactoryMap;
 	
 	private AbstractEntityManagerFactoryBean defaultEntityManagerBean;
+	
+	private Map<String, PlatformTransactionManager> transactionManagerMap;
 	
 	public SpringBeanHolder(ServletContext context){
 		
 		applicationContext = WebApplicationContextUtils
 			.getRequiredWebApplicationContext(context);
+		entityManagerFactoryMap = new HashMap<String, AbstractEntityManagerFactoryBean>();
 		Map<String, AbstractEntityManagerFactoryBean> map 
 			= applicationContext.getBeansOfType(AbstractEntityManagerFactoryBean.class);
 		for(String key: map.keySet()){
@@ -38,6 +42,10 @@ public class SpringBeanHolder {
 				}
 			}
 		}
+		
+		transactionManagerMap = applicationContext.getBeansOfType(PlatformTransactionManager.class);
+		
+		
 	}
 	
 	public EntityManagerFactory getEntityManagerFactory(String unitName){
@@ -55,6 +63,10 @@ public class SpringBeanHolder {
 	
 	public ApplicationContext getApplicationContext() {
 		return applicationContext;
+	}
+	
+	public Collection<PlatformTransactionManager> getTransactionManagers(){
+		return transactionManagerMap.values();
 	}
 	
 	
