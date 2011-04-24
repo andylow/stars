@@ -191,7 +191,7 @@
 		<dependency>
 			<groupId>com.siberhus</groupId>
 			<artifactId>stars</artifactId>
-			<version>0.1.BETA</version>
+			<version>0.1.1.BETA</version>
 			<scope>runtime</scope>
 		</dependency>
 		

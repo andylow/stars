@@ -40,10 +40,6 @@
 			<param-value>com.siberhus.stars.stripes</param-value>
 		</init-param>
 		<init-param>
-			<param-name>Configuration.Classe</param-name>
-			<param-value>com.siberhus.stars.stripes.StarsConfiguration</param-value>
-		</init-param>
-		<init-param>
 			<param-name>Bootstrap.Classes</param-name>
 			<param-value>net.sourceforge.stripes.examples.bugzooky.BugzookyBootstrap</param-value>
 		</init-param>
