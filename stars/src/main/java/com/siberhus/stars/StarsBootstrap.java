@@ -9,8 +9,6 @@ import javax.servlet.ServletContext;
  */
 public interface StarsBootstrap {
 	
-	public void init(ServletContext servletContext) throws Exception;
-	
-	public void destroy();
+	public void execute(ServletContext servletContext) throws Exception;
 	
 }

@@ -1,6 +1,6 @@
 package com.siberhus.stars.stripes;
 
-import java.lang.reflect.Modifier;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -16,7 +16,6 @@ import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.mock.MockHttpServletRequest;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
@@ -32,6 +31,7 @@ import com.siberhus.stars.ServiceBean;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsBootstrap;
 import com.siberhus.stars.StarsRuntimeException;
+import com.siberhus.stars.core.BootstrapInvoker;
 import com.siberhus.stars.core.DefaultDependencyManager;
 import com.siberhus.stars.core.DefaultLifecycleMethodManager;
 import com.siberhus.stars.core.DefaultServiceBeanRegistry;
@@ -45,7 +45,9 @@ import com.siberhus.stars.ejb.DefaultJndiLocator;
 import com.siberhus.stars.ejb.DefaultResourceLocator;
 import com.siberhus.stars.ejb.EjbLocator;
 import com.siberhus.stars.ejb.JndiLocator;
+import com.siberhus.stars.ejb.JndiNameRefMap;
 import com.siberhus.stars.ejb.ResourceLocator;
+import com.siberhus.stars.spring.SpringBeanHolder;
 
 public class StarsConfiguration extends RuntimeConfiguration {
 	
@@ -90,17 +92,24 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	private ServiceBeanRegistry serviceBeanRegistry;
 	
-	private JndiLocator jndiLocator;
-	
-	private EjbLocator ejbLocator;
-	
-	private ResourceLocator resourceLocator;
-	
 	private ServiceProvider serviceProvider = ServiceProvider.STARS;
+	
+	//JNDI
+	private JndiLocator jndiLocator;
 	
 	private Map<Class<?>, String> defaultJndiMap = new ConcurrentHashMap<Class<?>, String>();
 	
 	private Properties jndiProperties = new Properties();
+	
+	private JndiNameRefMap jndiNameRefMap;
+	
+	private ResourceLocator resourceLocator;	
+	
+	//EJB
+	private EjbLocator ejbLocator;
+	
+	//SPRING
+	private SpringBeanHolder springBeanHolder;
 	
 	private Autowire springAutowire;
 	
@@ -189,6 +198,9 @@ public class StarsConfiguration extends RuntimeConfiguration {
 			registerServices();
 			
 		}else if(ServiceProvider.SPRING == serviceProvider){
+			
+			springBeanHolder = new SpringBeanHolder(getServletContext());
+			
 			String aw = getBootstrapPropertyResolver().getProperty(SPRING_AUTOWIRE);
 			if(aw!=null){
 				if(Autowire.BY_NAME.toString().equalsIgnoreCase(aw)){
@@ -203,6 +215,16 @@ public class StarsConfiguration extends RuntimeConfiguration {
 			}else{
 				springAutowire = Autowire.BY_NAME;
 			}
+			
+		}else{
+			InputStream webFin = getServletContext().getResourceAsStream("/WEB-INF/web.xml");
+			if(webFin!=null){
+				try{
+					jndiNameRefMap = new JndiNameRefMap(webFin);
+				}catch(Exception e){
+					throw new StarsRuntimeException(e);
+				}
+			}
 		}
 		
 		scanActionBeans();
@@ -213,7 +235,7 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	protected void registerServices(){
 		String servicePackagesParam = getBootstrapPropertyResolver()
-		.getProperty(SERVICE_RESOLVER_PACKAGES);
+			.getProperty(SERVICE_RESOLVER_PACKAGES);
 		String[] servicePackages = StringUtil.standardSplit(servicePackagesParam);
 		
 		ResolverUtil<Object> serviceResolver = new ResolverUtil<Object>();
@@ -311,29 +333,12 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	protected void initBootstraps(){
 		
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(getServletContext().getContextPath(), "dummy");
-		
-		for (Class<? extends StarsBootstrap> initClass : getBootstrapPropertyResolver()
+		BootstrapInvoker bootstrapInvoker = new BootstrapInvoker(this);
+		for (Class<? extends StarsBootstrap> boostrapClass : getBootstrapPropertyResolver()
 			.getClassPropertyList(BOOTSTRAPS, StarsBootstrap.class)) {
-			try {
-				if (!initClass.isInterface() && ((initClass.getModifiers() & Modifier.ABSTRACT) == 0)) {
-					log.debug("Found StarsBootstrap class: {}  - instanciating and calling init()", initClass);
-					
-					StarsBootstrap bootstrap = initClass.newInstance();
-					dependencyManager.inspectAttributes(initClass);
-					if(serviceProvider==ServiceProvider.STARS){
-						Stripersist.requestInit();
-						dependencyManager.inject(mockRequest, bootstrap);
-						bootstrap.init(getServletContext());
-						Stripersist.requestComplete(null);
-					}else{
-						dependencyManager.inject(mockRequest, bootstrap);
-						bootstrap.init(getServletContext());
-					}
-				}
-			} catch (Exception e) {
-                 log.error("Error occurred while calling init() on "+initClass, e);
-			}
+			
+			bootstrapInvoker.invoke(boostrapClass);
+			
 		}
 	}
 	
@@ -379,29 +384,38 @@ public class StarsConfiguration extends RuntimeConfiguration {
 		return serviceBeanRegistry;
 	}
 	
+	public ServiceProvider getServiceProvider() {
+		return serviceProvider;
+	}
+	
 	public JndiLocator getJndiLocator() {
 		return jndiLocator;
 	}
 
-	public EjbLocator getEjbLocator() {
-		return ejbLocator;
+	public Map<Class<?>, String> getDefaultJndiMap(){
+		return defaultJndiMap;
+	}
+	
+	public JndiNameRefMap getJndiNameRefMap(){
+		return jndiNameRefMap;
 	}
 	
 	public ResourceLocator getResourceLocator() {
 		return resourceLocator;
 	}
 	
-	public ServiceProvider getServiceProvider() {
-		return serviceProvider;
+	public EjbLocator getEjbLocator() {
+		return ejbLocator;
 	}
 	
-	public Map<Class<?>, String> getDefaultJndiMap(){
-		return defaultJndiMap;
+	public SpringBeanHolder getSpringBeanHolder(){
+		return springBeanHolder;
 	}
 	
 	public Autowire getSpringAutowire(){
 		return springAutowire;
 	}
+	
 	
 }
 

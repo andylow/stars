@@ -1,14 +1,11 @@
 package com.siberhus.stars.core;
 
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.servlet.http.HttpServletRequest;
@@ -18,15 +15,13 @@ import net.sourceforge.stripes.config.Configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.stripesstuff.stripersist.Stripersist;
 
 import com.siberhus.stars.Service;
 import com.siberhus.stars.ServiceProvider;
-import com.siberhus.stars.StarsRuntimeException;
-import com.siberhus.stars.ejb.JndiNameRefMap;
-import com.siberhus.stars.spring.SpringBeanHolder;
+import com.siberhus.stars.SkipInjectionError;
+import com.siberhus.stars.ejb.EjbResourceInjector;
+import com.siberhus.stars.spring.SpringResourceInjector;
 import com.siberhus.stars.stripes.StarsConfiguration;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils.AnnotatedAttribute;
@@ -35,25 +30,37 @@ public class DefaultDependencyManager implements DependencyManager {
 	
 	private final Logger log = LoggerFactory.getLogger(DefaultDependencyManager.class);
 	
-	private SpringBeanHolder springBeanHolder;
-	
-	private JndiNameRefMap jndiNameRefMap;
-	
 	private StarsConfiguration configuration;
+	
+	private ResourceInjector resourceInjector;
+	
+	private ResourceInjector commonResourceInjector;
 	
 	private boolean inspected = false;
 	
 	@Override
-	public void init(Configuration configuration) throws Exception {
+	public void init(Configuration configuration) {
 		this.configuration = (StarsConfiguration)configuration;
-		if(this.configuration.getServiceProvider()==ServiceProvider.SPRING){
-			springBeanHolder = new SpringBeanHolder(configuration.getServletContext());
-		}else if(this.configuration.getServiceProvider()==ServiceProvider.EJB){
-			InputStream webFin = configuration.getServletContext().getResourceAsStream("/WEB-INF/web.xml");
-			if(webFin!=null){
-				jndiNameRefMap = new JndiNameRefMap(webFin);
-			}
+		//STARS
+		if(this.configuration.getServiceProvider()==ServiceProvider.STARS){
+			resourceInjector = new StarsResourceInjector();
 		}
+		//SPRING
+		if(this.configuration.getServiceProvider()==ServiceProvider.SPRING){
+			resourceInjector = new SpringResourceInjector();
+		}
+		//EJB
+		if(this.configuration.getServiceProvider()==ServiceProvider.EJB){
+			resourceInjector = new EjbResourceInjector();
+		}
+		
+		if(resourceInjector!=null){ 
+			resourceInjector.init(this.configuration);
+		}
+		
+		commonResourceInjector = new CommonResourceInjector();
+		commonResourceInjector.init(this.configuration);
+		
 	}
 	
 	@Override
@@ -65,23 +72,22 @@ public class DefaultDependencyManager implements DependencyManager {
 		if(configuration.getServiceProvider()==ServiceProvider.STARS){
 			AnnotatedAttributeUtils.inspectAttribute(Service.class, targetClass);
 		}
-		
+		//SPRING
+		if(configuration.getServiceProvider()==ServiceProvider.SPRING){
+			AnnotatedAttributeUtils.inspectAttribute(Autowired.class, targetClass);
+		}
 		//EJB
 		if(configuration.getServiceProvider()==ServiceProvider.EJB){
 			AnnotatedAttributeUtils.inspectAttribute(EJB.class, targetClass);
 		}
 		
-		//SPRING
-		if(configuration.getServiceProvider()==ServiceProvider.SPRING){
-			AnnotatedAttributeUtils.inspectAttribute(Autowired.class, targetClass);
-		}
-		
-		//SHARED
+		//COMMON
 		AnnotatedAttributeUtils.inspectAttribute(Resource.class, targetClass);
 		AnnotatedAttributeUtils.inspectAttribute(WebServiceRef.class, targetClass);
 		AnnotatedAttributeUtils.inspectAttribute(PersistenceContext.class, targetClass); //requires persistence.jar
 		AnnotatedAttributeUtils.inspectAttribute(PersistenceUnit.class, targetClass); //requires persistence.jar
 		
+		AnnotatedAttributeUtils.inspectAttribute(SkipInjectionError.class, targetClass);
 	}
 	
 	@Override
@@ -94,127 +100,51 @@ public class DefaultDependencyManager implements DependencyManager {
 		if(annotAttrList==null){
 			return;
 		}
-		
 		for(AnnotatedAttribute annotAttr : annotAttrList){
+			
+			try{
+				
+				resourceInjector.inject(request, annotAttr, targetObj);
+				
+				commonResourceInjector.inject(request, annotAttr, targetObj);
+				
+			}catch(Exception e){
+				SkipInjectionError skipInjectionError = targetObj.getClass()
+					.getAnnotation(SkipInjectionError.class);
+				if(skipInjectionError!=null){
+					String attributeName = annotAttr.getAttributeName();
+					String attributes[] = skipInjectionError.attributes();
+					if(attributes.length>0){
+						if(!Arrays.asList(attributes).contains(attributeName)){
+							throw e;
+						}
+					}
+					log.info("Unable to inject resource to attribute: {} of bean: {} due to {}", 
+						new Object[]{annotAttr.getAttributeName(), targetObj, e});
+				}else{
+					throw e;
+				}
+			}
+		}
+	}
+	
+	public static class CommonResourceInjector implements ResourceInjector{
+
+		private final Logger log = LoggerFactory.getLogger(CommonResourceInjector.class);
+		
+		private StarsConfiguration configuration;
+		
+		@Override
+		public void init(StarsConfiguration configuration) {
+			this.configuration = configuration;
+		}
+		
+		@Override
+		public void inject(HttpServletRequest request, AnnotatedAttribute annotAttr, Object targetObj) throws Exception {
 			
 			Annotation annot = annotAttr.getAnnotation();
 			Class<?> annotType = annot.annotationType();
 			Class<?> attrType = annotAttr.getType();
-			
-			//STARS SERVICE *************************************************************//
-			if(ServiceProvider.STARS == configuration.getServiceProvider())
-			if(Service.class == annotType){
-				Class<?> serviceInfClass = attrType;//Service Bean interface
-				Object serviceBean = configuration.getServiceBeanRegistry()
-					.get(request, ((Service)annot).impl());
-				
-				//Inject proxy object to target attribute
-				log.debug("Injecting Stars ServiceBean: {} to {}",new Object[]{serviceBean,targetObj});
-				annotAttr.set(targetObj, serviceBean);
-				
-				if(serviceBean==null){
-					throw new StarsRuntimeException("ServiceBean class: "+serviceInfClass+ " has not been registered!");
-				}
-				if(serviceBean instanceof Proxy){
-					//Deproxifies
-					serviceBean = ServiceBeanProxy.getRealObject((Proxy)serviceBean);
-				}
-				this.inject(request, serviceBean);
-			}else if(PersistenceContext.class == annotType){
-				PersistenceContext pc = (PersistenceContext)annot;
-				EntityManager em;
-				if("".equals(pc.unitName())){
-					em = Stripersist.getEntityManager();
-				}else{
-					em = Stripersist.getEntityManager(pc.unitName());
-				}
-				log.debug("Injecting EntityManager: {} to {}",new Object[]{em,targetObj});
-				annotAttr.set(targetObj, em);
-			}else if(PersistenceUnit.class == annotType){
-				PersistenceUnit pu = (PersistenceUnit)annot;
-				EntityManagerFactory emf;
-				if("".equals(pu.unitName())){
-					emf = Stripersist.getEntityManagerFactory();
-				}else{
-					emf = Stripersist.getEntityManagerFactory(pu.unitName());
-				}
-				log.debug("Injecting EntityManagerFactory: {} to {}",new Object[]{emf,targetObj});
-				annotAttr.set(targetObj, emf);
-			}
-			
-			//EJB SERVICE *************************************************************//
-			if(ServiceProvider.EJB == configuration.getServiceProvider())
-			if(EJB.class == annotType){
-				EJB ejbAnnot = ((EJB)annot);
-				Class<?> ejbInfClass = ejbAnnot.beanInterface();
-				if(ejbInfClass==Object.class){
-					ejbInfClass = attrType;//EJB Home/Remote interface or No-interface bean
-				}
-				Object ejbBean = configuration.getEjbLocator().lookup(request.getContextPath(), ejbInfClass, ejbAnnot.name(), 
-						ejbAnnot.lookup(), ejbAnnot.mappedName(), ejbAnnot.name());
-				log.debug("Injecting EJB Session Bean: {} to {}",new Object[]{ejbBean,targetObj});
-				annotAttr.set(targetObj, ejbBean);
-			}else if(PersistenceContext.class == annotType){
-				PersistenceContext pc = (PersistenceContext)annot;
-				EntityManager em;
-				if("".equals(pc.unitName())){
-					em = (EntityManager)configuration.getJndiLocator()
-						.lookup(jndiNameRefMap.getEntityManagerJndiName());
-				}else{
-					em = (EntityManager)configuration.getJndiLocator()
-					.lookup(jndiNameRefMap.getEntityManagerJndiName(pc.unitName()));
-				}
-				log.debug("Injecting EntityManager: {} to {}",new Object[]{em,targetObj});
-				annotAttr.set(targetObj, em);
-			}else if(PersistenceUnit.class == annotType){
-				PersistenceUnit pu = (PersistenceUnit)annot;
-				EntityManagerFactory emf;
-				if("".equals(pu.unitName())){
-					emf = (EntityManagerFactory)configuration.getJndiLocator()
-						.lookup(jndiNameRefMap.getEntityManagerFactoryJndiName());
-				}else{
-					emf = (EntityManagerFactory)configuration.getJndiLocator()
-					.lookup(jndiNameRefMap.getEntityManagerFactoryJndiName(pu.unitName()));
-				}
-				log.debug("Injecting EntityManager: {} to {}",new Object[]{emf,targetObj});
-				annotAttr.set(targetObj, emf);
-			}
-			
-			//SPRING SERVICE *************************************************************//
-			if(ServiceProvider.SPRING == configuration.getServiceProvider())
-			if(Autowired.class == annotType){
-				if(configuration.getSpringAutowire()==Autowire.BY_NAME){
-					String attrName = annotAttr.getAttributeName();
-					Object springBean = springBeanHolder.getApplicationContext().getBean(attrName);
-					annotAttr.set(targetObj, springBean);
-				}else if(configuration.getSpringAutowire()==Autowire.BY_TYPE){
-					Object springBean = springBeanHolder.getApplicationContext().getBean(attrType);
-					log.debug("Injecting Spring Bean: {} to {}",new Object[]{springBean,targetObj});
-					annotAttr.set(targetObj, springBean);
-				}
-			}else if(PersistenceContext.class == annotType){
-				PersistenceContext pc = (PersistenceContext)annot;
-				EntityManager em;
-				if("".equals(pc.unitName())){
-					em = springBeanHolder.getEntityManagerFactory().createEntityManager();
-				}else{
-					em = springBeanHolder.getEntityManagerFactory(
-							pc.unitName()).createEntityManager();
-				}
-				log.debug("Injecting EntityManager: {} to {}",new Object[]{em,targetObj});
-				annotAttr.set(targetObj, em);
-			}else if(PersistenceUnit.class == annotType){
-				PersistenceUnit pu = (PersistenceUnit)annot;
-				EntityManagerFactory emf;
-				if("".equals(pu.unitName())){
-					emf = springBeanHolder.getEntityManagerFactory();
-				}else{
-					emf = springBeanHolder.getEntityManagerFactory(pu.unitName());
-				}
-				log.debug("Injecting EntityManagerFactory: {} to {}",new Object[]{emf,targetObj});
-				annotAttr.set(targetObj, emf);
-			}
-			
 			
 			if(Resource.class == annotType){
 				Resource resAnnot = ((Resource)annot);
@@ -233,6 +163,7 @@ public class DefaultDependencyManager implements DependencyManager {
 				
 			}
 		}
+		
 	}
 	
 }
