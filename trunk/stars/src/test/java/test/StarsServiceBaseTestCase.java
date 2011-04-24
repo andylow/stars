@@ -5,8 +5,8 @@ import net.sourceforge.stripes.mock.MockFilterConfig;
 
 import org.junit.After;
 import org.junit.Before;
-import org.stripesstuff.stripersist.Stripersist;
 
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.stripes.StarsConfiguration;
 import com.siberhus.stars.test.action.JpaAction;

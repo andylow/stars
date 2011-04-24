@@ -6,10 +6,10 @@ import javax.persistence.EntityManagerFactory;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.stripesstuff.stripersist.Stripersist;
 
 import test.StarsServiceBaseTestCase;
 
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.core.ServiceBeanProxy;
 import com.siberhus.stars.test.action.JpaAction;
 import com.siberhus.stars.test.action.stars.StarsCalculatorAction;

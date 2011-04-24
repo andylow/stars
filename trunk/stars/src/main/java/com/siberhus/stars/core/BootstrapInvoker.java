@@ -8,8 +8,8 @@ import net.sourceforge.stripes.mock.MockHttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.stripesstuff.stripersist.Stripersist;
 
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsBootstrap;
 import com.siberhus.stars.stripes.StarsConfiguration;

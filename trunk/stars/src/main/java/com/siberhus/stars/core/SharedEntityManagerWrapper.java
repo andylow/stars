@@ -9,7 +9,7 @@ import javax.persistence.Query;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import org.stripesstuff.stripersist.Stripersist;
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 
 /**
  * <p>

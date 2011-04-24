@@ -1,4 +1,4 @@
-package org.stripesstuff.stripersist;
+package com.siberhus.org.stripesstuff.stripersist;
 
 import java.util.List;
 
