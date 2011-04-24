@@ -14,6 +14,7 @@ import net.sourceforge.stripes.examples.bugzooky.model.Person;
 import net.sourceforge.stripes.examples.bugzooky.model.Priority;
 import net.sourceforge.stripes.examples.bugzooky.model.Status;
 
+import com.siberhus.stars.SkipInjectionError;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsBootstrap;
 
@@ -32,16 +33,18 @@ import com.siberhus.stars.StarsBootstrap;
  * @author Hussachai Puripunpinyo
  *
  */
+@SkipInjectionError
 public class BugzookyBootstrap implements StarsBootstrap {
 
 	@PersistenceContext
 	private EntityManager em;
 	
+	
 	@Resource
 	private UserTransaction userTx;
 	
 	@Override
-	public void init(ServletContext servletContext) throws Exception {
+	public void execute(ServletContext servletContext) throws Exception {
 		
 		if(ServiceProvider.isEjb(servletContext)){
 			userTx.begin();
@@ -142,11 +145,6 @@ public class BugzookyBootstrap implements StarsBootstrap {
 	        bug.setComponent( components[2] );
 	        bug.setOwner( persons[5] );
 	        em.persist(bug);	
-	}
-	
-	@Override
-	public void destroy() {
-		
 	}
 
 }
