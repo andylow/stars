@@ -7,8 +7,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 import net.sourceforge.stripes.util.ReflectUtil;
 
-import org.stripesstuff.stripersist.Stripersist;
 
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.StarsRuntimeException;
 
 public class StarsExceptionHandlerProxy implements InvocationHandler{

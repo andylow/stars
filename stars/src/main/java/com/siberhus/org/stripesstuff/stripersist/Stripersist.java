@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.stripesstuff.stripersist;
+package com.siberhus.org.stripesstuff.stripersist;
 
 import java.io.File;
 import java.io.FileInputStream;

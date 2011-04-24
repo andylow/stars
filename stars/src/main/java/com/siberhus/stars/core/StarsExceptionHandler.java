@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.stripesstuff.stripersist.Stripersist;
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.ExceptionHandler;

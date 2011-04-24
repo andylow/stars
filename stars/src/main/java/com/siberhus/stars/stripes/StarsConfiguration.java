@@ -23,10 +23,10 @@ import net.sourceforge.stripes.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
-import org.stripesstuff.stripersist.EntityFormatter;
-import org.stripesstuff.stripersist.EntityTypeConverter;
-import org.stripesstuff.stripersist.Stripersist;
 
+import com.siberhus.org.stripesstuff.stripersist.EntityFormatter;
+import com.siberhus.org.stripesstuff.stripersist.EntityTypeConverter;
+import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.ServiceBean;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsBootstrap;
