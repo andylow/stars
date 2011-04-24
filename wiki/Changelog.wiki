@@ -5,9 +5,8 @@
 Add your content here.
 
 
-= Details =
-
-Add your content here.  Format your content with:
+= Version 0.1 BETA =
+Stars debuted with  
   * Text in *bold* or _italic_
   * Headings, paragraphs, and lists
   * Automatic links to other wiki pages
