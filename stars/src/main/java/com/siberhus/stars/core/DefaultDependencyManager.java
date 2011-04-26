@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.servlet.http.HttpServletRequest;
@@ -15,9 +14,7 @@ import net.sourceforge.stripes.config.Configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import com.siberhus.stars.Service;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.SkipInjectionError;
 import com.siberhus.stars.ejb.EjbResourceInjector;
@@ -68,26 +65,9 @@ public class DefaultDependencyManager implements DependencyManager {
 		
 		inspected = true;
 		
-		//STARS
-		if(configuration.getServiceProvider()==ServiceProvider.STARS){
-			AnnotatedAttributeUtils.inspectAttribute(Service.class, targetClass);
-		}
-		//SPRING
-		if(configuration.getServiceProvider()==ServiceProvider.SPRING){
-			AnnotatedAttributeUtils.inspectAttribute(Autowired.class, targetClass);
-		}
-		//EJB
-		if(configuration.getServiceProvider()==ServiceProvider.EJB){
-			AnnotatedAttributeUtils.inspectAttribute(EJB.class, targetClass);
-		}
+		resourceInjector.inspectAttributes(targetClass);
 		
-		//COMMON
-		AnnotatedAttributeUtils.inspectAttribute(Resource.class, targetClass);
-		AnnotatedAttributeUtils.inspectAttribute(WebServiceRef.class, targetClass);
-		AnnotatedAttributeUtils.inspectAttribute(PersistenceContext.class, targetClass); //requires persistence.jar
-		AnnotatedAttributeUtils.inspectAttribute(PersistenceUnit.class, targetClass); //requires persistence.jar
-		
-		AnnotatedAttributeUtils.inspectAttribute(SkipInjectionError.class, targetClass);
+		commonResourceInjector.inspectAttributes(targetClass);
 	}
 	
 	@Override
@@ -137,6 +117,17 @@ public class DefaultDependencyManager implements DependencyManager {
 		@Override
 		public void init(StarsConfiguration configuration) {
 			this.configuration = configuration;
+		}
+		
+		@Override
+		public void inspectAttributes(Class<?> targetClass) {
+			//COMMON
+			AnnotatedAttributeUtils.inspectAttribute(Resource.class, targetClass);
+			AnnotatedAttributeUtils.inspectAttribute(WebServiceRef.class, targetClass);
+			AnnotatedAttributeUtils.inspectAttribute(PersistenceContext.class, targetClass); //requires persistence.jar
+			AnnotatedAttributeUtils.inspectAttribute(PersistenceUnit.class, targetClass); //requires persistence.jar
+			
+			AnnotatedAttributeUtils.inspectAttribute(SkipInjectionError.class, targetClass);
 		}
 		
 		@Override

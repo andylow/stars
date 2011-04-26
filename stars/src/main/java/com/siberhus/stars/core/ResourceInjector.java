@@ -9,6 +9,8 @@ public interface ResourceInjector {
 
 	public void init(StarsConfiguration configuration);
 	
+	public void inspectAttributes(Class<?> targetClass);
+	
 	public void inject(HttpServletRequest request, AnnotatedAttribute annotAttr, Object targetObj) throws Exception;
 	
 }

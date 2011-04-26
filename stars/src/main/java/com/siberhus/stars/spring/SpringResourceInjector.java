@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.siberhus.stars.core.ResourceInjector;
 import com.siberhus.stars.stripes.StarsConfiguration;
+import com.siberhus.stars.utils.AnnotatedAttributeUtils;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils.AnnotatedAttribute;
 
 public class SpringResourceInjector implements ResourceInjector {
@@ -25,6 +26,11 @@ public class SpringResourceInjector implements ResourceInjector {
 	
 	public void init(StarsConfiguration configuration){
 		this.configuration = configuration;
+	}
+	
+	@Override
+	public void inspectAttributes(Class<?> targetClass) {
+		AnnotatedAttributeUtils.inspectAttribute(Autowired.class, targetClass);
 	}
 	
 	public void inject(HttpServletRequest request, AnnotatedAttribute annotAttr, Object targetObj)throws Exception{
