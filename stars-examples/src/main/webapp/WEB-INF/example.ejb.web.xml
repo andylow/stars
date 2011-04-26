@@ -6,9 +6,9 @@
 	id="WebApp_ID" version="2.5">
 	
     <description>
-      Stripes Examples
+      Stars &amp; Stripes Examlple
     </description>
-    <display-name>Stripes Examples</display-name>
+    <display-name>Stars &amp; Stripes Examlple</display-name>
 	
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <!--              Configuration of the Stripes Filter.                   -->
@@ -41,11 +41,11 @@
 		</init-param>
 		<init-param>
 			<param-name>JndiLocator.Class</param-name>
-			<param-value>com.siberhus.stars.ejb.DefaultJndiLocator</param-value>
+			<param-value>com.siberhus.stars.ejb.glassfish.Glassfish3JndiLocator</param-value>
 		</init-param>
 		<init-param>
 			<param-name>EjbLocator.Class</param-name>
-			<param-value>com.siberhus.stars.ejb.DefaultEjbLocator</param-value>
+			<param-value>com.siberhus.stars.ejb.glassfish.Glassfish3EjbLocator</param-value>
 		</init-param>
 		<init-param>
 			<param-name>JNDI.DefaultLookupTable</param-name>

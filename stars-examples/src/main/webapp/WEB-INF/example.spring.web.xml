@@ -6,9 +6,9 @@
 	id="WebApp_ID" version="2.5">
 	
     <description>
-      Stripes Examples
+      Stars &amp; Stripes Examlple
     </description>
-    <display-name>Stripes Examples</display-name>
+    <display-name>Stars &amp; Stripes Examlple</display-name>
 	
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -57,34 +57,6 @@
         	<param-value>com.siberhus.stars.spring.AnnotatedClassSpringActionResolver</param-value>
         </init-param>
          -->
-		<init-param>
-			<param-name>JndiLocator.Class</param-name>
-			<param-value>com.siberhus.stars.ejb.DefaultJndiLocator</param-value>
-		</init-param>
-		<init-param>
-			<param-name>JNDI.DefaultLookupTable</param-name>
-			<param-value>
-				javax.sql.DataSource=jdbc/bugzookyDs
-				javax.persistence.EntityManager=persistence/em
-				javax.persistence.EntityManagerFactory=persistence/emf
-			</param-value>
-		</init-param>
-		<!-- 
-		<init-param>
-			<param-name>JNDI.Properties</param-name>
-			<param-value>
-				java.naming.factory.initial=org.apache.openejb.client.LocalInitialContextFactory
-				bugzookyDs=new://Resource?type=DataSource
-				bugzookyDs.JdbcDriver=org.hsqldb.jdbcDriver
-				bugzookyDs.JdbcUrl=jdbc:hsqldb:mem:bugzooky
-				
-				bugzookyDsUnmanaged=new://Resource?type=DataSource
-				bugzookyDsUnmanaged.JdbcDriver=org.hsqldb.jdbcDriver
-				bugzookyDsUnmanaged.JdbcUrl=jdbc:hsqldb:mem:bugzooky
-				bugzookyDsUnmanaged.JtaManaged=false
-			</param-value>
-		</init-param>
-		 -->
 		
         <!-- Optional init parameter for the Stripes Filter. -->
         <init-param>
