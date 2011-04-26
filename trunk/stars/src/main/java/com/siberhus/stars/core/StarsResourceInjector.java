@@ -16,6 +16,7 @@ import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.Service;
 import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.stripes.StarsConfiguration;
+import com.siberhus.stars.utils.AnnotatedAttributeUtils;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils.AnnotatedAttribute;
 
 public class StarsResourceInjector implements ResourceInjector {
@@ -27,6 +28,11 @@ public class StarsResourceInjector implements ResourceInjector {
 	@Override
 	public void init(StarsConfiguration configuration) {
 		this.configuration = configuration;
+	}
+	
+	@Override
+	public void inspectAttributes(Class<?> targetClass) {
+		AnnotatedAttributeUtils.inspectAttribute(Service.class, targetClass);
 	}
 	
 	@Override
@@ -75,4 +81,6 @@ public class StarsResourceInjector implements ResourceInjector {
 			annotAttr.set(targetObj, emf);
 		}
 	}
+
+	
 }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.siberhus.stars.core.ResourceInjector;
 import com.siberhus.stars.stripes.StarsConfiguration;
+import com.siberhus.stars.utils.AnnotatedAttributeUtils;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils.AnnotatedAttribute;
 
 public class EjbResourceInjector implements ResourceInjector {
@@ -25,6 +26,11 @@ public class EjbResourceInjector implements ResourceInjector {
 	@Override
 	public void init(StarsConfiguration configuration) {
 		this.configuration = configuration;
+	}
+	
+	@Override
+	public void inspectAttributes(Class<?> targetClass) {
+		AnnotatedAttributeUtils.inspectAttribute(EJB.class, targetClass);
 	}
 	
 	@Override
