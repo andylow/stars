@@ -6,9 +6,9 @@
 	id="WebApp_ID" version="2.5">
 	
     <description>
-      Stripes Examples
+      Stars &amp; Stripes Examlple
     </description>
-    <display-name>Stripes Examples</display-name>
+    <display-name>Stars &amp; Stripes Examlple</display-name>
 	
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <!--              Configuration of the Stripes Filter.                   -->
@@ -46,35 +46,6 @@
 				net.sourceforge.stripes.examples.bugzooky.biz
 			</param-value>
 		</init-param>
-		<init-param>
-			<param-name>JndiLocator.Class</param-name>
-			<param-value>com.siberhus.stars.ejb.DefaultJndiLocator</param-value>
-		</init-param>
-		<init-param>
-			<param-name>JNDI.DefaultLookupTable</param-name>
-			<param-value>
-				javax.sql.DataSource=jdbc/bugzookyDs
-				javax.persistence.EntityManager=persistence/em
-				javax.persistence.EntityManagerFactory=persistence/emf
-			</param-value>
-		</init-param>
-		<!-- 
-		<init-param>
-			<param-name>JNDI.Properties</param-name>
-			<param-value>
-				java.naming.factory.initial=org.apache.openejb.client.LocalInitialContextFactory
-				bugzookyDs=new://Resource?type=DataSource
-				bugzookyDs.JdbcDriver=org.hsqldb.jdbcDriver
-				bugzookyDs.JdbcUrl=jdbc:hsqldb:mem:bugzooky
-				
-				bugzookyDsUnmanaged=new://Resource?type=DataSource
-				bugzookyDsUnmanaged.JdbcDriver=org.hsqldb.jdbcDriver
-				bugzookyDsUnmanaged.JdbcUrl=jdbc:hsqldb:mem:bugzooky
-				bugzookyDsUnmanaged.JtaManaged=false
-			</param-value>
-		</init-param>
-		 -->
-		
         <!-- Optional init parameter for the Stripes Filter. -->
         <init-param>
             <param-name>ActionBeanContext.Class</param-name>
@@ -143,19 +114,5 @@
         <url-pattern>*.action</url-pattern>
     </servlet-mapping>
     
-	<resource-env-ref>
-		<resource-env-ref-name>jdbc/bugzookyDs</resource-env-ref-name>
-		<resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
-	</resource-env-ref>
-	
-    <persistence-context-ref>
-		<persistence-context-ref-name>persistence/em</persistence-context-ref-name>
-		<persistence-unit-name>default</persistence-unit-name>
-	</persistence-context-ref>
-	
-	<persistence-unit-ref>
-		<persistence-unit-ref-name>persistence/emf</persistence-unit-ref-name>
-		<persistence-unit-name>default</persistence-unit-name>
-	</persistence-unit-ref>
 	
 </web-app>
