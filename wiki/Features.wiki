@@ -16,7 +16,7 @@
   * Supports Bootstrap with DI (Since 0.1)
   * Stars local service with annotation driven (Since 0.1)
     @com.siberhus.stars.ServiceBean (to marked POJO as a service)<br/>
-    @com.siberhus.stars.Service (to inject the required service)
+    @com.siberhus.stars.Service (to inject the required service)<br/>
     Support request boundary transaction management
   * Supports Java Persistence API annotations(Since 0.1)
     @javax.persistence.PersistenceUnit<br/>
