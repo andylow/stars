@@ -21,7 +21,7 @@
     org.springframework.beans.factory.InitializingBean<br/>
     org.springframework.beans.factory.DisposableBean
   * Supports Bootstrap with DI
-  * Stars local service with annotation driven<br/>
+  * Stars local service with annotation driven
     @com.siberhus.stars.ServiceBean (to marked POJO as a service)<br/>
     @com.siberhus.stars.Service (to inject the required service)
     Support request boundary transaction management
