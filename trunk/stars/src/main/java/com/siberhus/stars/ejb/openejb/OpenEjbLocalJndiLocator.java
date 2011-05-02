@@ -11,13 +11,13 @@ import com.siberhus.stars.ejb.DefaultJndiLocator;
 public class OpenEjbLocalJndiLocator extends DefaultJndiLocator {
 	
 	@Override
-	public void initialContext(Properties props) throws NamingException {
+	public Context initialContext(Properties props) throws NamingException {
 		
 		System.getProperties().put("openejb.jndiname.format", getDefaultJndiNameFormat());
 		
 		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
-		context = new InitialContext(props);
 		
+		return new InitialContext(props);
 	}
 	
 	protected String getDefaultJndiNameFormat(){

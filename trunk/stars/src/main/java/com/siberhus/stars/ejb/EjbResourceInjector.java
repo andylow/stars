@@ -1,5 +1,6 @@
 package com.siberhus.stars.ejb;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 
 import javax.ejb.EJB;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.core.ResourceInjector;
 import com.siberhus.stars.stripes.StarsConfiguration;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils;
@@ -23,9 +25,21 @@ public class EjbResourceInjector implements ResourceInjector {
 	
 	private StarsConfiguration configuration;
 	
+	private JndiNameRefMap jndiNameRefMap;
+	
 	@Override
 	public void init(StarsConfiguration configuration) {
 		this.configuration = configuration;
+		
+		InputStream webFin = configuration.getServletContext()
+			.getResourceAsStream("/WEB-INF/web.xml");
+		if(webFin!=null){
+			try{
+				jndiNameRefMap = new JndiNameRefMap(webFin);
+			}catch(Exception e){
+				throw new StarsRuntimeException(e);
+			}
+		}
 	}
 	
 	@Override
@@ -55,10 +69,10 @@ public class EjbResourceInjector implements ResourceInjector {
 			EntityManager em;
 			if("".equals(pc.unitName())){
 				em = (EntityManager)configuration.getJndiLocator()
-					.lookup(configuration.getJndiNameRefMap().getEntityManagerJndiName());
+					.lookup(jndiNameRefMap.getEntityManagerJndiName());
 			}else{
 				em = (EntityManager)configuration.getJndiLocator()
-				.lookup(configuration.getJndiNameRefMap().getEntityManagerJndiName(pc.unitName()));
+				.lookup(jndiNameRefMap.getEntityManagerJndiName(pc.unitName()));
 			}
 			log.debug("Injecting EntityManager: {} to {}",new Object[]{em,targetObj});
 			annotAttr.set(targetObj, em);
@@ -67,10 +81,10 @@ public class EjbResourceInjector implements ResourceInjector {
 			EntityManagerFactory emf;
 			if("".equals(pu.unitName())){
 				emf = (EntityManagerFactory)configuration.getJndiLocator()
-					.lookup(configuration.getJndiNameRefMap().getEntityManagerFactoryJndiName());
+					.lookup(jndiNameRefMap.getEntityManagerFactoryJndiName());
 			}else{
 				emf = (EntityManagerFactory)configuration.getJndiLocator()
-					.lookup(configuration.getJndiNameRefMap().getEntityManagerFactoryJndiName(pu.unitName()));
+					.lookup(jndiNameRefMap.getEntityManagerFactoryJndiName(pu.unitName()));
 			}
 			log.debug("Injecting EntityManager: {} to {}",new Object[]{emf,targetObj});
 			annotAttr.set(targetObj, emf);

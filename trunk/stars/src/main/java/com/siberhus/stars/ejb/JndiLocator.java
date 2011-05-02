@@ -11,7 +11,7 @@ public interface JndiLocator extends ConfigurableComponent{
 	
 	public Context getContext();
 	
-	public void initialContext(Properties props) throws NamingException;
+	public Context initialContext(Properties properties) throws NamingException;
 	
 	public Object lookup(String jndiName) throws NamingException;
 	

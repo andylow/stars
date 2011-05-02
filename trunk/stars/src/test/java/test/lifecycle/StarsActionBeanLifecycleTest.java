@@ -15,7 +15,7 @@ import test.StarsServiceBaseTestCase;
 
 import com.siberhus.stars.stripes.StarsCoreInterceptor;
 import com.siberhus.stars.test.action.stars.StarsCalculatorAction;
-import com.siberhus.stars.test.util.ReflectionUtils;
+import com.siberhus.stars.utils.MethodUtils;
 
 
 public class StarsActionBeanLifecycleTest extends StarsServiceBaseTestCase {
@@ -41,7 +41,7 @@ public class StarsActionBeanLifecycleTest extends StarsServiceBaseTestCase {
 		
 		context.setActionBean(calcAction);
 		context.setActionBeanContext(createActionBeanContext("/add", "add"));
-		context.setHandler(ReflectionUtils.getMethod(calcAction, "add"));
+		context.setHandler(MethodUtils.getMethod(calcAction, "add"));
 		context.setInterceptors(interceptorList);
 		context.setLifecycleStage(LifecycleStage.HandlerResolution);
 		

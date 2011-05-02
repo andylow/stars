@@ -15,6 +15,7 @@ import net.sourceforge.stripes.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.siberhus.stars.Environment;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.SkipInjectionError;
 import com.siberhus.stars.ejb.EjbResourceInjector;
@@ -27,6 +28,8 @@ public class DefaultDependencyManager implements DependencyManager {
 	
 	private final Logger log = LoggerFactory.getLogger(DefaultDependencyManager.class);
 	
+	private static final String NAME = DefaultDependencyManager.class.getName();
+	
 	private StarsConfiguration configuration;
 	
 	private ResourceInjector resourceInjector;
@@ -34,6 +37,17 @@ public class DefaultDependencyManager implements DependencyManager {
 	private ResourceInjector commonResourceInjector;
 	
 	private boolean inspected = false;
+	
+	public DefaultDependencyManager(){
+		Environment.initReloadable(NAME);
+	}
+	
+	public void requestReloading(){
+		if(Environment.isReloadingRequested(NAME)){
+			init(configuration);
+			configuration.requestReloading();
+		}
+	}
 	
 	@Override
 	public void init(Configuration configuration) {
@@ -72,6 +86,8 @@ public class DefaultDependencyManager implements DependencyManager {
 	
 	@Override
 	public void inject(HttpServletRequest request, Object targetObj) throws Exception {
+		requestReloading();
+		
 		Class<?> targetClass = targetObj.getClass();
 		if(!inspected){
 			throw new IllegalStateException(targetClass.getName()+" has not been inspected yet");

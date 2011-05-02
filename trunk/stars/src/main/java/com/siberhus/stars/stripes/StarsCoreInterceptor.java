@@ -1,7 +1,5 @@
 package com.siberhus.stars.stripes;
 
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
@@ -16,11 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.siberhus.stars.ServiceProvider;
 
-@Intercepts(LifecycleStage.ActionBeanResolution)
+@Intercepts({
+	LifecycleStage.ActionBeanResolution, 
+	LifecycleStage.HandlerResolution,
+	LifecycleStage.RequestComplete,
+})
 public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent {
 	
 	private final Logger log = LoggerFactory.getLogger(StarsCoreInterceptor.class);
@@ -48,14 +49,13 @@ public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent 
 			//Inject
 			configuration.getDependencyManager()
 				.inject(actionBeanContext.getRequest(), actionBean);
-			if(configuration.getServiceProvider()==ServiceProvider.SPRING){
-				HttpServletRequest request = context.getActionBeanContext().getRequest();
+			if(ServiceProvider.SPRING==configuration.getServiceProvider()){
 				if(actionBean instanceof ApplicationContextAware){
-					((ApplicationContextAware)actionBean).setApplicationContext(WebApplicationContextUtils
-							.getRequiredWebApplicationContext(request.getServletContext()));
+					((ApplicationContextAware)actionBean).setApplicationContext(
+						configuration.getSpringBeanHolder().getApplicationContext());
 				}else if(actionBean instanceof BeanFactoryAware){
-					((BeanFactoryAware)actionBean).setBeanFactory(WebApplicationContextUtils
-						.getRequiredWebApplicationContext(request.getServletContext()));
+					((BeanFactoryAware)actionBean).setBeanFactory(
+						configuration.getSpringBeanHolder().getApplicationContext());
 				}
 			}
 			break;

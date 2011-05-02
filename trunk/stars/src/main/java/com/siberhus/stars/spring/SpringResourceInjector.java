@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.core.ResourceInjector;
 import com.siberhus.stars.stripes.StarsConfiguration;
 import com.siberhus.stars.utils.AnnotatedAttributeUtils;
@@ -22,10 +23,27 @@ public class SpringResourceInjector implements ResourceInjector {
 	
 	private final Logger log = LoggerFactory.getLogger(SpringResourceInjector.class);
 	
+	public static final String SPRING_AUTOWIRE = "Spring.Autowire";
+	
 	private StarsConfiguration configuration;
+	
+	private Autowire springAutowire = Autowire.BY_NAME;
 	
 	public void init(StarsConfiguration configuration){
 		this.configuration = configuration;
+		
+		String aw = configuration.getBootstrapPropertyResolver().getProperty(SPRING_AUTOWIRE);
+		if(aw!=null){
+			if(Autowire.BY_NAME.toString().equalsIgnoreCase(aw)){
+				springAutowire = Autowire.BY_NAME;
+			}else if(Autowire.BY_TYPE.toString().equalsIgnoreCase(aw)){
+				springAutowire = Autowire.BY_TYPE;
+			}else if(Autowire.NO.toString().equalsIgnoreCase(aw)){
+				springAutowire = Autowire.NO;
+			}else{
+				throw new StarsRuntimeException("Unknow Spring Autowire value: "+aw);
+			}
+		}
 	}
 	
 	@Override
@@ -41,11 +59,11 @@ public class SpringResourceInjector implements ResourceInjector {
 		SpringBeanHolder springBeanHolder = configuration.getSpringBeanHolder();
 		
 		if(Autowired.class == annotType){
-			if(configuration.getSpringAutowire()==Autowire.BY_NAME){
+			if(springAutowire==Autowire.BY_NAME){
 				String attrName = annotAttr.getAttributeName();
 				Object springBean = springBeanHolder.getApplicationContext().getBean(attrName);
 				annotAttr.set(targetObj, springBean);
-			}else if(configuration.getSpringAutowire()==Autowire.BY_TYPE){
+			}else if(springAutowire==Autowire.BY_TYPE){
 				Object springBean = springBeanHolder.getApplicationContext().getBean(attrType);
 				log.debug("Injecting Spring Bean: {} to {}",new Object[]{springBean,targetObj});
 				annotAttr.set(targetObj, springBean);

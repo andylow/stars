@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.siberhus.stars.Environment;
 import com.siberhus.stars.ServiceProvider;
 import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.stripes.StarsConfiguration;
@@ -26,6 +27,8 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	
 	private final Logger log = LoggerFactory.getLogger(DefaultLifecycleMethodManager.class);
 	
+	private static final String NAME = DefaultLifecycleMethodManager.class.getName();
+	
 	private final Map<Class<?>, Method> I_METHOD_CACHE = new Hashtable<Class<?>, Method>();
 	private final Map<Class<?>, Method> D_METHOD_CACHE = new Hashtable<Class<?>, Method>();
 	
@@ -33,7 +36,17 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	
 	private boolean inspected = false;
 	
-	public DefaultLifecycleMethodManager(){}
+	public DefaultLifecycleMethodManager(){
+		Environment.initReloadable(NAME);
+	}
+	
+	public void requestReloading(){
+		if(Environment.isReloadingRequested(NAME)){
+			I_METHOD_CACHE.clear();
+			D_METHOD_CACHE.clear();
+			configuration.requestReloading();
+		}
+	}
 	
 	@Override
 	public void init(Configuration configuration) throws Exception {
@@ -49,7 +62,6 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	
 	protected synchronized boolean inspectMethod(Class<? extends Annotation> annotClass, Class<?> targetClass){
 		boolean hasAnnotatedMethod = false;
-		
 		do{
 			for(Method method : targetClass.getDeclaredMethods()){
 				
@@ -109,11 +121,14 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	
 	@Override
 	public void invokePostConstructMethod(Object object){
+		requestReloading();
 		checkState(object.getClass());
 		Method method= I_METHOD_CACHE.get(object.getClass());
-		log.debug("Invoking PostConstruct method: {} on instance: {}",new Object[]{method, object});
 		try {
-			if(method!=null) method.invoke(object);
+			if(method!=null) {
+				log.debug("Invoking PostConstruct method: {} on instance: {}",new Object[]{method, object});
+				method.invoke(object);
+			}
 			if(configuration.getServiceProvider()==ServiceProvider.SPRING){
 				if(object instanceof InitializingBean){
 					((InitializingBean)object).afterPropertiesSet();
@@ -128,11 +143,14 @@ public class DefaultLifecycleMethodManager implements LifecycleMethodManager {
 	
 	@Override
 	public void invokePreDestroyMethod(Object object){
+		requestReloading();
 		checkState(object.getClass());
 		Method method = D_METHOD_CACHE.get(object.getClass());
-		log.debug("Invoking PreDestroy method: {} on instance: {}",new Object[]{method, object});
 		try {
-			if(method!=null) method.invoke(object);
+			if(method!=null) {
+				log.debug("Invoking PreDestroy method: {} on instance: {}",new Object[]{method, object});
+				method.invoke(object);
+			}
 			if(configuration.getServiceProvider()==ServiceProvider.SPRING){
 				if(object instanceof DisposableBean){
 					((DisposableBean)object).destroy();
