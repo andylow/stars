@@ -1,5 +1,6 @@
 package com.siberhus.stars.ejb;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -8,22 +9,34 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.StringUtil;
 
 import com.siberhus.stars.StarsRuntimeException;
 import com.siberhus.stars.stripes.StarsConfiguration;
 
 public class DefaultJndiLocator implements JndiLocator {
 	
-	protected StarsConfiguration configuration;
+	public static final String JNDI_PROPERTIES = "JNDI.Properties";
 	
-	protected Map<Class<?>,String> localJndiMap;
+	public static final String JNDI_DEFAULT_LOOKUP_TABLE = "JNDI.DefaultLookupTable";
 	
-	protected Context context;
+	private StarsConfiguration configuration;
+	
+	private Map<Class<?>,String> localJndiMap = new HashMap<Class<?>, String>();
+	
+	private Context context;
 	
 	@Override
 	public void init(Configuration configuration) throws Exception {
 		this.configuration = (StarsConfiguration)configuration;
-		localJndiMap = this.configuration.getDefaultJndiMap();
+		
+		initJndiDefaultLookupTable();
+		
+		Properties jndiProperties = createJndiProperties();
+		
+		context = initialContext(jndiProperties);
 	}
 	
 	@Override
@@ -32,8 +45,8 @@ public class DefaultJndiLocator implements JndiLocator {
 	}
 	
 	@Override
-	public void initialContext(Properties props) throws NamingException {
-		context = new InitialContext(props);
+	public Context initialContext(Properties properties) throws NamingException {
+		return new InitialContext(properties);
 	}
 	
 	@Override
@@ -59,5 +72,42 @@ public class DefaultJndiLocator implements JndiLocator {
 	protected Map<Class<?>,String> getLocalJndiMap(){
 		return localJndiMap;
 	}
+	
+	private Properties createJndiProperties(){
+		Properties jndiProperties = new Properties();
+		String mapString = configuration.getBootstrapPropertyResolver().getProperty(JNDI_PROPERTIES);
+		if (mapString != null) {
+            String[] items = StringUtil.standardSplit(mapString);
+            for (String item : items) {
+            	item = item.trim();
+            	String kv[] = item.split("=");
+            	jndiProperties.put(kv[0].trim(), kv[1].trim());
+            }
+        }
+		return jndiProperties;
+	}
+	
+	private void initJndiDefaultLookupTable(){
+		String mapString = configuration.getBootstrapPropertyResolver().getProperty(JNDI_DEFAULT_LOOKUP_TABLE);
+		if (mapString != null) {
+            String[] items = StringUtil.standardSplit(mapString);
+            for (String item : items) {
+            	item = item.trim();
+            	String className = null, lookup = null;
+                try {
+                	String kv[] = item.split("=");
+                	className = kv[0];
+                	lookup = kv[1];
+                	localJndiMap.put(ReflectUtil.findClass(className),lookup);
+                }catch (ClassNotFoundException e) {
+                    throw new StripesRuntimeException("Could not find class [" + className
+                            + "] specified by the configuration parameter [" + item
+                            + "]. This value must contain fully qualified class names separated "
+                            + " by commas.");
+                }
+            }
+        }
+	}
+	
 	
 }
