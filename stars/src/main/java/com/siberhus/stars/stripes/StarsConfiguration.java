@@ -44,7 +44,7 @@ import com.siberhus.stars.ejb.DefaultResourceLocator;
 import com.siberhus.stars.ejb.EjbLocator;
 import com.siberhus.stars.ejb.JndiLocator;
 import com.siberhus.stars.ejb.ResourceLocator;
-import com.siberhus.stars.security.SpringSecurityInterceptor;
+import com.siberhus.stars.security.SpringAccessDecisionManagerSecurityInterceptor;
 import com.siberhus.stars.spring.SpringBeanHolder;
 
 public class StarsConfiguration extends RuntimeConfiguration {
@@ -239,7 +239,7 @@ public class StarsConfiguration extends RuntimeConfiguration {
 					.findClass("org.springframework.security.access.AccessDecisionManager");
 				try{
 					springBeanHolder.getApplicationContext().getBean(accessDecisionManager);
-					addInterceptor(map, new SpringSecurityInterceptor());
+					addInterceptor(map, new SpringAccessDecisionManagerSecurityInterceptor());
 				}catch(BeansException e){}
 			} catch (ClassNotFoundException e) {}
 		}

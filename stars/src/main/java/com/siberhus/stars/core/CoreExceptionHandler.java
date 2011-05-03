@@ -5,11 +5,13 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.WebAttributes;
 
 import com.siberhus.org.stripesstuff.stripersist.Stripersist;
 import com.siberhus.stars.ServiceProvider;
@@ -49,6 +51,8 @@ public class CoreExceptionHandler implements ExceptionHandler {
 		//TODO: if(securityImplementation==SPRING_SECURITY) SHIRO, JAVA_EE
 		//Spring Security
 		if(throwable instanceof AccessDeniedException){
+			HttpSession session = request.getSession();
+			session.setAttribute(WebAttributes.ACCESS_DENIED_403, throwable);
 			if(accessDeniedPage!=null){
 				request.getRequestDispatcher(accessDeniedPage).forward(request, response);
 			}else{
