@@ -24,7 +24,7 @@ import com.siberhus.stars.ServiceProvider;
 @Intercepts({
 	LifecycleStage.ActionBeanResolution, 
 	LifecycleStage.HandlerResolution,
-	LifecycleStage.RequestComplete,
+	LifecycleStage.RequestComplete
 })
 public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent {
 	
