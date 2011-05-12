@@ -15,8 +15,20 @@
 	</listener>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
+		<param-value>
+			classpath:spring/applicationContext.xml
+			classpath:spring/securityContext.xml
+		</param-value>
 	</context-param>
+	
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 	
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <!--              Configuration of the Stripes Filter.                   -->
@@ -50,6 +62,10 @@
 		<init-param>
 			<param-name>Spring.Autowire</param-name>
 			<param-value>BY_NAME</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Security.AccessDeniedPage</param-name>
+			<param-value>/403.jsp</param-value>
 		</init-param>
 		<!-- 
         <init-param>
@@ -164,6 +180,17 @@
         <servlet-name>StripesDispatcher</servlet-name>
         <url-pattern>*.action</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+    	<servlet-name>StarsDevTools</servlet-name>
+    	<servlet-class>com.siberhus.stars.servlet.StarsDevelopmentToolsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>StarsDevTools</servlet-name>
+    	<url-pattern>/tools</url-pattern>
+    </servlet-mapping>
+    
+    
     <!-- 
 	<resource-env-ref>
 		<resource-env-ref-name>jdbc/bugzookyDs</resource-env-ref-name>

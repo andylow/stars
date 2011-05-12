@@ -15,6 +15,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMethod;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 
 import com.siberhus.stars.Service;
 
@@ -58,6 +59,7 @@ public class CalculatorActionBean extends AbstractActionBean {
         return new ForwardResolution("/quickstart/calc.jsp");
     }
 
+    @Secured("ROLE_GUEST")
     /** An event handler method that divides number one by number two. */
     public Resolution division() {
         result = calculatorService.devide(numberOne, numberTwo);

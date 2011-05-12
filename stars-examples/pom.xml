@@ -196,7 +196,36 @@
 			<version>${dependency.spring.version}</version>
 			<scope>compile</scope>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${dependency.spring.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${dependency.spring.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${dependency.spring.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+			<version>${dependency.spring.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-acl</artifactId>
+			<version>${dependency.spring.version}</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>servlets.com</groupId>
 			<artifactId>cos</artifactId>
@@ -238,7 +267,7 @@
 				<!-- <version>7.4.0.v20110414</version> -->
 				<version>8.0.0.M2</version>
 				<configuration>
-					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
 					<!-- 
 					<webAppConfig>
 						<contextPath>/stars-examples</contextPath>
