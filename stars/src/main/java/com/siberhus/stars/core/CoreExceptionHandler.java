@@ -34,6 +34,12 @@ public class CoreExceptionHandler implements ExceptionHandler {
 		this.serviceProvider = this.configuration.getServiceProvider();
 		accessDeniedPage = configuration.getBootstrapPropertyResolver()
 			.getProperty(SEC_ACCESS_DENIED_PAGE);
+		if(accessDeniedPage!=null){
+			if(accessDeniedPage.startsWith("/")){
+				accessDeniedPage = configuration.getServletContext()
+					.getContextPath() + accessDeniedPage;
+			}
+		}
 	}
 	
 	@Override
@@ -54,7 +60,8 @@ public class CoreExceptionHandler implements ExceptionHandler {
 			HttpSession session = request.getSession();
 			session.setAttribute(WebAttributes.ACCESS_DENIED_403, throwable);
 			if(accessDeniedPage!=null){
-				request.getRequestDispatcher(accessDeniedPage).forward(request, response);
+				response.sendRedirect(accessDeniedPage);
+//				request.getRequestDispatcher(accessDeniedPage).forward(request, response);
 			}else{
 				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied error (403)");
 			}
