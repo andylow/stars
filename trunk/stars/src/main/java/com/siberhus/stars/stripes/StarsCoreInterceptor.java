@@ -51,24 +51,25 @@ public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent 
 	@Override
 	public Resolution intercept(ExecutionContext context) throws Exception {
 		ActionBeanContext actionBeanContext = context.getActionBeanContext();
+		HttpServletRequest request = actionBeanContext.getRequest();
 		Resolution resolution = context.proceed();
 		ActionBean actionBean = context.getActionBean();
 		if(actionBean==null){
-			HttpServletRequest req = actionBeanContext.getRequest();
-			String uri = req.getContextPath() + req.getServletPath();
+			String uri = request.getContextPath() + request.getServletPath();
 			throw new ActionBeanNotFoundException("ActionBean not found for url "+uri);
 		}
 		Class<? extends ActionBean> actionBeanClass = actionBean.getClass();
 		String urlBinding = configuration.getActionResolver().getUrlBinding(actionBean.getClass());
 		log.debug("URL Binding for class: {} is {}",new Object[]{actionBeanClass,urlBinding});
-		actionBeanContext.getRequest().setAttribute("actionBeanClass", actionBeanClass.getName());
-		actionBeanContext.getRequest().setAttribute("actionBeanUrl", urlBinding);
+		request.setAttribute("actionBeanClass", actionBeanClass.getName());
+		request.setAttribute("actionBeanUrl", urlBinding);
 		
 		switch (context.getLifecycleStage()) {
 		case ActionBeanResolution:
+			request.setCharacterEncoding(configuration.getPageEncoding());
 			//Inject
 			configuration.getDependencyManager()
-				.inject(actionBeanContext.getRequest(), actionBean);
+				.inject(request, actionBean);
 			if(ServiceProvider.SPRING==configuration.getServiceProvider()){
 				if(actionBean instanceof ApplicationContextAware){
 					((ApplicationContextAware)actionBean).setApplicationContext(

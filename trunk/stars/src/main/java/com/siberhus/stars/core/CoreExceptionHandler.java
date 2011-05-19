@@ -69,7 +69,7 @@ public class CoreExceptionHandler implements ExceptionHandler {
 //		else if(throwable instanceof AuthorizationException){
 //			
 //		}
-		
+		throwable.printStackTrace();
 	}
 	
 }
