@@ -15,6 +15,7 @@ import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ import com.siberhus.stars.ejb.JndiLocator;
 import com.siberhus.stars.ejb.ResourceLocator;
 import com.siberhus.stars.security.SpringAccessDecisionManagerSecurityInterceptor;
 import com.siberhus.stars.spring.SpringBeanHolder;
+import com.siberhus.stars.validation.StarsTypeConverterFactory;
 
 public class StarsConfiguration extends RuntimeConfiguration {
 	
@@ -80,6 +82,8 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	public static final String SERVICE_PROVIDER = "Service.Provider";
 	
+	public static final String PAGE_ENCODING = "Page.Encoding";
+	
 	private DependencyManager dependencyManager;
 	
 	private LifecycleMethodManager lifecycleMethodManager;
@@ -98,6 +102,8 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	//SPRING
 	private SpringBeanHolder springBeanHolder;
+	
+	private String pageEncoding = "UTF-8";
 	
 	static {
 		Package pkg = StarsConfiguration.class.getPackage();
@@ -131,7 +137,10 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	public void init() {
 		
 		getServletContext().setAttribute(ROOT_STARS_CONFIG_CONTEXT_ATTRIBUTE, this);
-		
+		String pageEncoding = getBootstrapPropertyResolver().getProperty(PAGE_ENCODING); 
+		if(pageEncoding!=null){
+			this.pageEncoding = pageEncoding;
+		}
 		String sp = getBootstrapPropertyResolver().getProperty(SERVICE_PROVIDER);
 		if(sp!=null){
 			if(ServiceProvider.SPRING.name().equalsIgnoreCase(sp)){
@@ -259,6 +268,23 @@ public class StarsConfiguration extends RuntimeConfiguration {
 				.newInstance(userExceptionHandler, coreExceptionHandler);
 	}
 	
+	
+	@Override
+	protected TypeConverterFactory initTypeConverterFactory() {
+		TypeConverterFactory factory = super.initTypeConverterFactory();
+		if(factory!=null){
+			return factory;
+		}
+		factory = new StarsTypeConverterFactory();
+		try {
+			factory.init(this);
+		} catch (Exception e) {
+			throw new StarsRuntimeException(e);
+		}
+		return factory;
+	}
+	
+	
 	protected void scanActionBeans() {
 		Collection<Class<? extends ActionBean>> actionBeanClasses = getActionResolver().getActionBeanClasses();
 		for(Class<? extends ActionBean> actionBeanClass: actionBeanClasses){
@@ -338,6 +364,10 @@ public class StarsConfiguration extends RuntimeConfiguration {
 	
 	public SpringBeanHolder getSpringBeanHolder(){
 		return springBeanHolder;
+	}
+	
+	public String getPageEncoding(){
+		return pageEncoding;
 	}
 	
 }

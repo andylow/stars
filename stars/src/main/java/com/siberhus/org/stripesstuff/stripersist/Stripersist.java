@@ -149,7 +149,10 @@ public class Stripersist implements Interceptor, ConfigurableComponent {
                 // different classloader - thanks freddy!
                 if (url == null)
                     url = getClass().getResource("/META-INF/persistence.xml");
-
+                if(url == null){
+                	log.debug("persistence.xml not found. JPA is disabled!!!");
+                	return;
+                }
                 log.debug("Reading persistence.xml from ", url, ".");
                 init(url);
             }
