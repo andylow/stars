@@ -22,7 +22,7 @@ public class SessionLocalePicker extends DefaultLocalePicker {
 	public static final String LOCALE_SESSION_ATTR = SessionLocalePicker.class.getName()+".Locale";
 	
 	public static final String ENABLED = "LocalePicker.Enabled";
-	public static final String CHARACTER_ENCODING = "LocalePicker.characterEncoding";
+	public static final String CHARACTER_ENCODING = "LocalePicker.CharacterEncoding";
 	
 	private boolean enabled = true;
 	private String characterEncoding = "UTF-8";
@@ -43,12 +43,12 @@ public class SessionLocalePicker extends DefaultLocalePicker {
 		if(enabledStr!=null){
 			if("true".equalsIgnoreCase(enabledStr)){ this.enabled = true;
 			}else if("false".equalsIgnoreCase(enabledStr)){ this.enabled = false;
-			}else{ throw new StarsRuntimeException("Cannot convert "+enabled+" to boolean");}
+			}else{ throw new IllegalArgumentException("Cannot convert "+enabled+" to boolean");}
 		}
 		characterEncoding = propResolver.getProperty(CHARACTER_ENCODING);
 		if(characterEncoding!=null){
 			if(!Charset.isSupported(characterEncoding)){
-				throw new StarsRuntimeException("Unsupported character encoding: "+characterEncoding);
+				throw new IllegalArgumentException("Unsupported character encoding: "+characterEncoding);
 			}
 		}
 		

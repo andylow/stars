@@ -66,7 +66,6 @@ public class StarsCoreInterceptor implements Interceptor, ConfigurableComponent 
 		
 		switch (context.getLifecycleStage()) {
 		case ActionBeanResolution:
-			request.setCharacterEncoding(configuration.getPageEncoding());
 			//Inject
 			configuration.getDependencyManager()
 				.inject(request, actionBean);
