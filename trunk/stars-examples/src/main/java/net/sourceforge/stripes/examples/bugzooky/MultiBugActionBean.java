@@ -28,7 +28,7 @@ import com.siberhus.stars.Service;
  * 
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/multiBug.action")
+@UrlBinding("/action/bugzooky/multiBug/{$event}")
 public class MultiBugActionBean extends BugzookyActionBean {
 	
 	@Service(impl=BugManagerImpl.class)
@@ -100,7 +100,7 @@ public class MultiBugActionBean extends BugzookyActionBean {
 				.addGlobalError(new SimpleError("You must select at least one bug to edit."));
 			return index();
 		}
-
+		
 		for (int id : this.bugIds) {
 			this.bugs.add(bugManager.getBug(id));
 		}

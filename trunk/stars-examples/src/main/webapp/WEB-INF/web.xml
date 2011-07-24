@@ -80,38 +80,6 @@
 				net.sourceforge.stripes.examples.bugzooky.biz
 			</param-value>
 		</init-param>
-		<init-param>
-			<param-name>JndiLocator.Class</param-name>
-			<param-value>com.siberhus.stars.ejb.DefaultJndiLocator</param-value>
-		</init-param>
-		<init-param>
-			<param-name>EjbLocator.Class</param-name>
-			<param-value>com.siberhus.stars.ejb.DefaultEjbLocator</param-value>
-		</init-param>
-		<init-param>
-			<param-name>JNDI.DefaultLookupTable</param-name>
-			<param-value>
-				javax.sql.DataSource=jdbc/bugzookyDs
-				javax.persistence.EntityManager=persistence/em
-				javax.persistence.EntityManagerFactory=persistence/emf
-			</param-value>
-		</init-param>
-		<!-- 
-		<init-param>
-			<param-name>JNDI.Properties</param-name>
-			<param-value>
-				java.naming.factory.initial=org.apache.openejb.client.LocalInitialContextFactory
-				bugzookyDs=new://Resource?type=DataSource
-				bugzookyDs.JdbcDriver=org.hsqldb.jdbcDriver
-				bugzookyDs.JdbcUrl=jdbc:hsqldb:mem:bugzooky
-				
-				bugzookyDsUnmanaged=new://Resource?type=DataSource
-				bugzookyDsUnmanaged.JdbcDriver=org.hsqldb.jdbcDriver
-				bugzookyDsUnmanaged.JdbcUrl=jdbc:hsqldb:mem:bugzooky
-				bugzookyDsUnmanaged.JtaManaged=false
-			</param-value>
-		</init-param>
-		 -->
 		
         <!-- Optional init parameter for the Stripes Filter. -->
         <init-param>
@@ -124,7 +92,7 @@
             <param-value>Don't Copy/Paste Me! Make up your own encryption key and keep it secret!</param-value>
         </init-param>
     </filter>
-
+	
     <filter-mapping>
         <filter-name>StripesFilter</filter-name>
         <url-pattern>*.jsp</url-pattern>
@@ -136,27 +104,7 @@
         <servlet-name>StripesDispatcher</servlet-name>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!--         Configuration of Bugzooky security filter.                  -->
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <filter>
-        <description>Provides login security for Bugzooky</description>
-        <filter-name>BugzookySecurityFilter</filter-name>
-        <filter-class>net.sourceforge.stripes.examples.bugzooky.SecurityFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>BugzookySecurityFilter</filter-name>
-        <url-pattern>/bugzooky/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>BugzookySecurityFilter</filter-name>
-        <url-pattern>/examples/bugzooky/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-
+	
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <!--         Configuration of the Stripes dispatcher Servlet.            -->
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -190,21 +138,5 @@
     	<url-pattern>/tools</url-pattern>
     </servlet-mapping>
     
-    
-    <!-- 
-	<resource-env-ref>
-		<resource-env-ref-name>jdbc/bugzookyDs</resource-env-ref-name>
-		<resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
-	</resource-env-ref>
-	 -->
-    <persistence-context-ref>
-		<persistence-context-ref-name>persistence/em</persistence-context-ref-name>
-		<persistence-unit-name>default</persistence-unit-name>
-	</persistence-context-ref>
-	
-	<persistence-unit-ref>
-		<persistence-unit-ref-name>persistence/emf</persistence-unit-ref-name>
-		<persistence-unit-name>default</persistence-unit-name>
-	</persistence-unit-ref>
 	
 </web-app>

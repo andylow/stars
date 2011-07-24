@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
+import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.util.HtmlUtil;
@@ -26,7 +27,7 @@ import java.util.TreeSet;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/viewResource.action")
+@UrlBinding("/action/bugzooky/viewResource")
 public class ViewResourceActionBean extends BugzookyActionBean {
     
 	@Validate(required=true)
@@ -51,6 +52,7 @@ public class ViewResourceActionBean extends BugzookyActionBean {
      * Handler method which will handle a request for a resource in the web application
      * and stream it back to the client inside of an HTML preformatted section.
      */
+    @DefaultHandler
     public Resolution view() {
         final InputStream stream = getContext().getRequest().getSession()
                                   .getServletContext().getResourceAsStream(this.resource);
@@ -78,8 +80,8 @@ public class ViewResourceActionBean extends BugzookyActionBean {
      * Method used when this ActionBean is used as a view helper. Returns a listing of all the
      * JSPs and ActionBeans available for viewing.
      */
-    @SuppressWarnings("unchecked")
-    public Collection getAvailableResources() {
+    @SuppressWarnings("rawtypes")
+	public Collection getAvailableResources() {
         ServletContext ctx = getContext().getRequest().getSession().getServletContext();
         SortedSet<String> resources = new TreeSet<String>();
         resources.addAll( ctx.getResourcePaths("/bugzooky/"));

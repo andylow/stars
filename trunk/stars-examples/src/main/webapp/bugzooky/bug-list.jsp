@@ -30,7 +30,7 @@
                         <td>${bug.status}</td>
                         <td>${bug.owner.username}</td>
                         <td>
-                            <stripes:link href="${pageContext.request.contextPath}/bugzooky/singleBug.action" event="preEdit">
+                            <stripes:link href="${pageContext.request.contextPath}/action/bugzooky/singleBug" event="preEdit">
                                 Edit
                                 <stripes:param name="bug.id" value="${bug.id}"/>
                             </stripes:link>

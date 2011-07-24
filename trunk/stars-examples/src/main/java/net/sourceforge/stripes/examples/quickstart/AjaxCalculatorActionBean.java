@@ -32,7 +32,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
  * @author Tim Fennell
  * @author Hussachai Puripunpinyo
  */
-@UrlBinding("/quickstart/ajax-calc.action")
+@UrlBinding("/action/quickstart/ajax-calc/{$event}/{numberOne}/{numberTwo}")
 public class AjaxCalculatorActionBean extends AbstractActionBean implements ValidationErrorHandler {
 
 	

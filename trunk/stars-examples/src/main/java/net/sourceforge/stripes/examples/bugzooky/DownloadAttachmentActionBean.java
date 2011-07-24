@@ -22,7 +22,7 @@ import com.siberhus.stars.Service;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/downloadAttachment.action")
+@UrlBinding("/action/bugzooky/downloadAttachment/${event}/{bugId}")
 public class DownloadAttachmentActionBean extends BugzookyActionBean {
 	
 	@Service(impl=BugManagerImpl.class)

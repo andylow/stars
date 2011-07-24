@@ -8,6 +8,9 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
 import javax.transaction.UserTransaction;
 
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+
+import net.sourceforge.stripes.examples.bugzooky.model.Authority;
 import net.sourceforge.stripes.examples.bugzooky.model.Bug;
 import net.sourceforge.stripes.examples.bugzooky.model.Component;
 import net.sourceforge.stripes.examples.bugzooky.model.Person;
@@ -54,7 +57,7 @@ public class BugzookyBootstrap implements StarsBootstrap {
 		}
 		try{
 			
-			generateTestData();
+			generateTestData(servletContext);
 			
 			if(ServiceProvider.isEjb(servletContext)){
 				userTx.commit();
@@ -70,7 +73,7 @@ public class BugzookyBootstrap implements StarsBootstrap {
 		}
 	}
 	
-	private void generateTestData(){
+	private void generateTestData(ServletContext servletContext){
 		
 		Component components[] = new Component[]{
 				new Component("Component 0"),new Component("Component 1"),
@@ -90,9 +93,20 @@ public class BugzookyBootstrap implements StarsBootstrap {
 				new Person("fred", "fred", "Fred", "Jones", "fred@mystery.machine.tv")
 			};
 			for(Person person : persons){
+				if(ServiceProvider.isSpring(servletContext)){
+					person.setPassword(new Md5PasswordEncoder()
+						.encodePassword(person.getPassword(), null));
+				}
 				em.persist(person);
 			}
-			
+			if(ServiceProvider.isSpring(servletContext)){
+				for(Person person: persons){
+					em.persist(new Authority(person.getUsername(), "ROLE_USER"));
+					if("scooby".equals(person.getUsername())){
+						em.persist(new Authority(person.getUsername(), "ROLE_ADMIN"));
+					}
+				}
+			}
 			em.flush();
 			
 			

@@ -20,8 +20,10 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMethod;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 
 import com.siberhus.stars.Service;
+import com.siberhus.stars.ServiceProvider;
 
 /**
  * ActionBean that handles the registration of new users.
@@ -29,7 +31,7 @@ import com.siberhus.stars.Service;
  * @author Tim Fennell
  */
 @Wizard
-@UrlBinding("/bugzooky/register.action")
+@UrlBinding("/action/bugzooky/register/{$event}")
 public class RegisterActionBean extends BugzookyActionBean {
 	
 	@Service(impl=PersonManagerImpl.class)
@@ -76,12 +78,12 @@ public class RegisterActionBean extends BugzookyActionBean {
     @DontBind
     @DefaultHandler
     public Resolution index(){
-    	System.out.println("index");
+    	
     	return new ForwardResolution("/bugzooky/register.jsp");
     }
     
     public Resolution gotoStep2() throws Exception {
-    	System.out.println("gotoStep2");
+    	
         return new ForwardResolution("/bugzooky/register2.jsp");
     }
     
@@ -89,6 +91,10 @@ public class RegisterActionBean extends BugzookyActionBean {
      * Registers a new user, logs them in, and redirects them to the bug list page.
      */
     public Resolution register() {
+    	if(ServiceProvider.isSpring(getContext().getServletContext())){
+    		user.setPassword(new Md5PasswordEncoder()
+				.encodePassword(user.getPassword(), null));
+		}
     	personManager.saveOrUpdate(this.user);
         getContext().setUser(this.user);
         getContext().getMessages().add(
