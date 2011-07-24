@@ -1,13 +1,19 @@
 package com.siberhus.stars.validation;
 
 
+
 public class DateTypeConverter extends
 		net.sourceforge.stripes.validation.DateTypeConverter implements DateFormatDiscloser{
 	
 	//Change visibility of getFormatStrings() from protected to public
 	@Override
 	public String[] getFormatStrings() {
-		return super.getFormatStrings();
-	}
+       return super.getFormatStrings();
+    }
+	
+	@Override
+	protected String preProcessInput(String input) {
+        return input.trim();
+    }
 	
 }
