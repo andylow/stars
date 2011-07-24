@@ -12,8 +12,6 @@ import net.sourceforge.stripes.localization.DefaultLocalePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.siberhus.stars.StarsRuntimeException;
-
 
 public class SessionLocalePicker extends DefaultLocalePicker {
 	
@@ -45,8 +43,8 @@ public class SessionLocalePicker extends DefaultLocalePicker {
 			}else if("false".equalsIgnoreCase(enabledStr)){ this.enabled = false;
 			}else{ throw new IllegalArgumentException("Cannot convert "+enabled+" to boolean");}
 		}
-		characterEncoding = propResolver.getProperty(CHARACTER_ENCODING);
-		if(characterEncoding!=null){
+		if(propResolver.getProperty(CHARACTER_ENCODING)!=null){
+			characterEncoding = propResolver.getProperty(CHARACTER_ENCODING);
 			if(!Charset.isSupported(characterEncoding)){
 				throw new IllegalArgumentException("Unsupported character encoding: "+characterEncoding);
 			}

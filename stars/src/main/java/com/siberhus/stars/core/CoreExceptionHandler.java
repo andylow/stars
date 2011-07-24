@@ -50,14 +50,15 @@ public class CoreExceptionHandler implements ExceptionHandler {
 			Stripersist.requestComplete(throwable);
 		}
 		
+		HttpSession session = request.getSession();
+		
 		//************** Handle Security Related Exception ***************//
-		request.setAttribute("exception", throwable);
+		session.setAttribute("LAST_EXCEPTION", throwable);
 		
 		//Check for the security related exception class existing before processing further.
 		//TODO: if(securityImplementation==SPRING_SECURITY) SHIRO, JAVA_EE
 		//Spring Security
 		if(throwable instanceof AccessDeniedException){
-			HttpSession session = request.getSession();
 			session.setAttribute(WebAttributes.ACCESS_DENIED_403, throwable);
 			if(accessDeniedPage!=null){
 				response.sendRedirect(accessDeniedPage);
