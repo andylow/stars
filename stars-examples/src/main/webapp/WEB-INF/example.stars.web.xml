@@ -86,7 +86,7 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>BugzookySecurityFilter</filter-name>
-        <url-pattern>/examples/bugzooky/*</url-pattern>
+        <url-pattern>/action/bugzooky/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 

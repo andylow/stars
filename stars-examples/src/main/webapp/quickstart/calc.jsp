@@ -28,8 +28,8 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <stripes:submit name="addition" value="Add"/>
-                    <stripes:submit name="division" value="Divide"/>
+                    <stripes:submit name="add" value="Add"/>
+                    <stripes:submit name="divide" value="Divide"/>
                 </td>
             </tr>
             <tr>

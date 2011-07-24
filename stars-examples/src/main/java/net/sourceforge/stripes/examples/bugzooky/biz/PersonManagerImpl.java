@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.siberhus.stars.ServiceBean;
 
+import net.sourceforge.stripes.examples.bugzooky.model.Authority;
 import net.sourceforge.stripes.examples.bugzooky.model.Person;
 
 /**
@@ -55,9 +56,12 @@ public class PersonManagerImpl implements PersonManager {
 	 */
 	@Transactional
 	public void saveOrUpdate(Person person) {
+		if(person.getId()==null){
+			em.persist(new Authority(person.getUsername(), "ROLE_USER"));
+		}
 		em.merge(person);
 	}
-
+	
 	/**
 	 * Deletes a person from the system...doesn't do anything fancy to clean up
 	 * where the person is used.

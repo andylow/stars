@@ -13,7 +13,7 @@
 		<stars:ejb id="personManager" beanInterface="net.sourceforge.stripes.examples.bugzooky.biz.PersonManager"/>
 		
         <div class="subtitle">People</div>
-        <stripes:form action="${pageContext.request.contextPath}/bugzooky/administerPeople.action">
+        <stripes:form action="${pageContext.request.contextPath}/action/bugzooky/administerPeople">
             <stripes:errors/>
 
             <table class="display">
@@ -55,7 +55,7 @@
         </stripes:form>
 
         <div class="subtitle">Components</div>
-        <stripes:form action="${pageContext.request.contextPath}/bugzooky/administerComponents.action">
+        <stripes:form action="${pageContext.request.contextPath}/action/bugzooky/administerComponents">
             <stripes:errors/>
 
             <table class="display" style="width: auto;">

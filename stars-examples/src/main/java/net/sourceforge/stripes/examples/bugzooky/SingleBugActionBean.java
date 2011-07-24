@@ -33,7 +33,7 @@ import com.siberhus.stars.Service;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/singleBug.action")
+@UrlBinding("/action/bugzooky/singleBug/{$event}")
 public class SingleBugActionBean extends BugzookyActionBean {
 	
 	@Service(impl=BugManagerImpl.class)

@@ -7,30 +7,33 @@
             <tr>
                 <td style="width: 25%; vertical-align: top;">
                     <!-- Somewhat contrived example of using the errors tag 'action' attribute. -->
-                    <stripes:errors action="${pageContext.request.contextPath}/action/bugzooky/authc"/>
-                    <stripes:form action="${actionBeanUrl}" focus="">
+                    <c:if test="${not empty param.error}">
+						<font color="red">
+							Login error. <br />
+							Reason : ${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}
+						</font>
+					</c:if>
+                    <form method="POST" action="<c:url value="/j_spring_security_check" />">
                         <table>
                             <tr>
                                 <td style="font-weight: bold;"><stripes:label for="username"/>:</td>
                             </tr>
                             <tr>
-                                <td><stripes:text name="username" value="${user.username}"/></td>
+                                <td><input type="text" name="j_username" /></td>
                             </tr>
                             <tr>
                                 <td style="font-weight: bold;"><stripes:label for="password"/>:</td>
                             </tr>
                             <tr>
-                                <td><stripes:password name="password"/></td>
+                                <td><input type="password" name="j_password" /></td>
                             </tr>
                             <tr>
-                                <td style="text-align: center;">
-                                    <%-- If the security servlet attached a targetUrl, carry that along. --%>
-                                    <stripes:hidden name="targetUrl" value="${actionBean.targetUrl}"/>
-                                    <stripes:submit name="login" value="Login"/>
+                                <td style="text-align: center;">  
+                                    <input type="submit" value="Login" />
                                 </td>
                             </tr>
                         </table>
-                    </stripes:form>
+                    </form>
                 </td>
                 <td style="vertical-align: top;">
                     <c:choose>

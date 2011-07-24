@@ -3,6 +3,7 @@ package net.sourceforge.stripes.examples.bugzooky;
 import javax.ejb.EJB;
 
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.DontBind;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
@@ -18,6 +19,7 @@ import net.sourceforge.stripes.validation.ValidationError;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.siberhus.stars.Service;
+import com.siberhus.stars.ServiceProvider;
 
 /**
  * An example of an ActionBean that uses validation annotations on fields instead of
@@ -26,8 +28,8 @@ import com.siberhus.stars.Service;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/login.action")
-public class LoginActionBean extends BugzookyActionBean {
+@UrlBinding("/action/bugzooky/authc/{$event}")
+public class AuthcActionBean extends BugzookyActionBean {
 	
 	@Service(impl=PersonManagerImpl.class)
 	@Autowired
@@ -63,6 +65,10 @@ public class LoginActionBean extends BugzookyActionBean {
     @DontValidate
     @DefaultHandler
     public Resolution index(){
+    	if(ServiceProvider.isSpring(getContext().getServletContext())){
+    		
+    		return new ForwardResolution("/bugzooky/login-spring.jsp");
+    	}
     	return new ForwardResolution("/bugzooky/login.jsp");
     }
     
@@ -73,20 +79,24 @@ public class LoginActionBean extends BugzookyActionBean {
             ValidationError error = new LocalizableError("usernameDoesNotExist");
             getContext().getValidationErrors().add("username", error);
             return getContext().getSourcePageResolution();
-        }
-        else if (!person.getPassword().equals(password)) {
+        }else if (!person.getPassword().equals(password)) {
             ValidationError error = new LocalizableError("incorrectPassword");
             getContext().getValidationErrors().add("password", error);
             return getContext().getSourcePageResolution();
-        }
-        else {
+        }else {
             getContext().setUser(person);
             if (this.targetUrl != null) {
                 return new RedirectResolution(this.targetUrl);
-            }
-            else {
+            }else {
                 return new RedirectResolution("/bugzooky/bug-list.jsp");
             }
         }
     }
+    
+    @DontBind
+    public Resolution logout() throws Exception {
+        getContext().logout();
+        return new RedirectResolution("/bugzooky/exit.jsp");
+    }
+    
 }

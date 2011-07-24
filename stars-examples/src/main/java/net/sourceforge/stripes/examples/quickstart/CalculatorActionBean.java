@@ -5,6 +5,7 @@ import javax.ejb.EJB;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontBind;
 import net.sourceforge.stripes.action.ForwardResolution;
+import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.service.CalculatorService;
@@ -25,7 +26,7 @@ import com.siberhus.stars.Service;
  * @author Hussachai Puripunpinyo
  * 
  */
-@UrlBinding("/quickstart/calc.action")
+@UrlBinding("/action/quickstart/calc/{$event}/{numberOne}/{numberTwo}")
 public class CalculatorActionBean extends AbstractActionBean {
 	
 	@Service(impl=CalculatorServiceImpl.class) //Inject Stars Service
@@ -54,13 +55,15 @@ public class CalculatorActionBean extends AbstractActionBean {
     }
     
     /** An event handler method that adds number one to number two. */
+    @HandlesEvent("add")
     public Resolution addition() {
         result = calculatorService.add(numberOne, numberTwo);
         return new ForwardResolution("/quickstart/calc.jsp");
     }
-
-    @Secured("ROLE_GUEST")
+    
     /** An event handler method that divides number one by number two. */
+    @HandlesEvent("divide")
+    @Secured("ROLE_GUEST")
     public Resolution division() {
         result = calculatorService.devide(numberOne, numberTwo);
         return new ForwardResolution("/quickstart/calc.jsp");
@@ -70,7 +73,7 @@ public class CalculatorActionBean extends AbstractActionBean {
      * An example of a custom validation that checks that division operations
      * are not dividing by zero.
      */
-    @ValidationMethod(on="division")
+    @ValidationMethod(on="divide")
     public void avoidDivideByZero(ValidationErrors errors) {
         if (this.numberTwo == 0) {
             errors.add("numberTwo", new SimpleError("Dividing by zero is not allowed."));

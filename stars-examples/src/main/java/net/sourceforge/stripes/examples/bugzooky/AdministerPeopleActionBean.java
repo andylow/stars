@@ -19,8 +19,11 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 
 import com.siberhus.stars.Service;
+import com.siberhus.stars.ServiceProvider;
 
 /**
  * Manages the administration of People, from the Administer Bugzooky page. Receives a List
@@ -30,7 +33,9 @@ import com.siberhus.stars.Service;
  * @author Tim Fennell
  * @author Hussachai Puripunpinyo
  */
-@UrlBinding("/bugzooky/administerPeople.action")
+
+@Secured("ROLE_ADMIN")
+@UrlBinding("/action/bugzooky/administerPeople/{$event}")
 public class AdministerPeopleActionBean extends BugzookyActionBean {
     private int[] deleteIds;
 
@@ -78,6 +83,10 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
 
             if (person.getPassword() != null) {
                 realPerson.setPassword(person.getPassword());
+                if(ServiceProvider.isSpring(getContext().getServletContext())){
+                	realPerson.setPassword(new Md5PasswordEncoder()
+        				.encodePassword(realPerson.getPassword(), null));
+        		}
             }
             
             personManager.saveOrUpdate(realPerson);

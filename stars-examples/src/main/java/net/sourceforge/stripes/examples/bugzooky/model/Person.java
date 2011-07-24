@@ -15,16 +15,17 @@ import javax.persistence.Id;
 public class Person {
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
-	@Column(unique=true)
+	@Column(name="username", length=16, unique=true, nullable=false)
     private String username;
     private String firstName;
     private String lastName;
     private String email;
+    @Column(name="password", length=32, nullable=false)
     private String password;
 
     /** Default constructor. */
     public Person() { }
-
+    
     /** Constructs a well formed person. */
     public Person(String username, String password, String first, String last, String email) {
         this.username = username;

@@ -17,6 +17,7 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 
 import com.siberhus.stars.Service;
 
@@ -28,7 +29,8 @@ import com.siberhus.stars.Service;
  * @author Tim Fennell
  * @author Hussachai Puripunpinyo
  */
-@UrlBinding("/bugzooky/administerComponents.action")
+@Secured("ROLE_USER")
+@UrlBinding("/action/bugzooky/administerComponents/{$event}")
 public class AdministerComponentsActionBean extends BugzookyActionBean {
     private int[] deleteIds;
     
@@ -54,6 +56,7 @@ public class AdministerComponentsActionBean extends BugzookyActionBean {
     	return new ForwardResolution("/bugzooky/administer-bugzooky.jsp");
     }
     
+    @Secured("ROLE_ADMIN")
     public Resolution save() {
 
         // Apply any changes to existing people (and create new ones)
@@ -61,8 +64,7 @@ public class AdministerComponentsActionBean extends BugzookyActionBean {
             Component realComponent;
             if (component.getId() == null) {
                 realComponent = new Component();
-            }
-            else {
+            }else {
                 realComponent = componentManager.getComponent(component.getId());
             }
 

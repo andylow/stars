@@ -42,10 +42,10 @@
             <p>Stars & Stripes currently ships with three examples:</p>
 
             <ul>
-                <li>A simple <a href="${pageContext.request.contextPath}/quickstart/calc.action">quickstart</a> example (a simple calculator)</li>
-                <li>A simple <a href="${pageContext.request.contextPath}/quickstart/ajax-calc.action">ajax version</a> of the quickstart example</li>
+                <li>A simple <a href="${pageContext.request.contextPath}/action/quickstart/calc">quickstart</a> example (a simple calculator)</li>
+                <li>A simple <a href="${pageContext.request.contextPath}/action/quickstart/ajax-calc">ajax version</a> of the quickstart example</li>
                 <li>A more involved, but still standalone example application, a bug tracker called
-                    <a href="${pageContext.request.contextPath}/bugzooky/multiBug.action">Bugzooky</a>.</li>
+                    <a href="${pageContext.request.contextPath}/action/bugzooky/multiBug">Bugzooky</a>.</li>
             </ul>
 			
             <p>For those of you too young or too old or who did not grow up with western cartoons as a kid,

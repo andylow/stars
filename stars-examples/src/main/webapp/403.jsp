@@ -3,6 +3,6 @@
 
 <stripes:layout-render name="/bugzooky/layout/standard.jsp" title="Unauthorized Request">
     <stripes:layout-component name="contents">
-    	Error = ${exception}
+    	Error = ${LAST_EXCEPTION}
 	</stripes:layout-component>
 </stripes:layout-render>
