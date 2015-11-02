@@ -1,0 +1,30 @@
+#Chagelog
+
+## Version 0.1.1 BETA ##
+  * ActionBean and Stars' local service support
+> > @com.siberhus.SkipInjectionError
+  * Change package name of Stripersist to avoid class loading problem.
+> > (Stars includes modified Stripersist library)
+  * Several bugs fixed.
+
+## Version 0.1 BETA ##
+  * ActionBean supports JSR 250's annotations
+> > @javax.annotation.PostConstruct<br />
+> > @javax.annotation.PreDestroy<br />
+> > @javax.annotation.Resource
+  * EJB Integration: ActionBean supports @javax.ejb.EJB
+  * Spring Integration: ActionBean supports
+> > @org.springframework.beans.factory.annotation.Autowired<br />
+> > and callback interfaces<br />
+> > org.springframework.context.ApplicationContextAware<br />
+> > org.springframework.beans.factory.BeanFactoryAware<br />
+> > org.springframework.beans.factory.InitializingBean<br />
+> > org.springframework.beans.factory.DisposableBean
+  * Supports Bootstrap with DI
+  * Stars local service with annotation driven
+> > @com.siberhus.stars.ServiceBean (to marked POJO as a service)<br />
+> > @com.siberhus.stars.Service (to inject the required service)<br />
+> > Support request boundary transaction management
+  * Supports Java Persistence API annotations
+> > @javax.persistence.PersistenceUnit<br />
+> > @javax.persistence.PersistenceContext<br />
